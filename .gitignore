@@ -27,6 +27,9 @@ duplicates_report.csv
 # Embeddings and intermediates
 kinases_embeddings/
 kinases_domains_embeddings/
+kinases_domains_e*/
+*_embeddings/
+*_layers_*/
 
 # Clustering outputs
 clustering/*.csv
