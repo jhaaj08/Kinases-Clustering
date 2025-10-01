@@ -1,0 +1,31 @@
+SUPERVISED CLASSIFICATION RESULTS
+================================================================================
+
+Model: Multinomial Logistic Regression (saga, L2, balanced)
+Train size: 1,000 samples
+Test size:  251 samples
+
+Cross-Validation Results (5-fold on train):
+  Macro-F1: 0.8040 ± 0.0154
+  Folds: 0.8341, 0.8021, 0.7926, 0.7967, 0.7945
+
+Test Set Results:
+  Accuracy:    0.7968
+  Macro-F1:    0.7513
+  Weighted-F1: 0.7996
+
+Per-Class Performance:
+--------------------------------------------------------------------------------
+Class         Precision     Recall   F1-Score    Support
+--------------------------------------------------------------------------------
+AGC               0.857      0.720      0.783         25
+Atypical          0.500      0.714      0.588          7
+CAMK              0.864      0.864      0.864         44
+CK1               1.000      0.667      0.800          9
+CMGC              0.843      0.915      0.878         47
+STE               0.690      0.769      0.727         26
+TK                0.838      0.765      0.800         81
+TKL               0.500      0.667      0.571         12
+
+Macro avg         0.761      0.760      0.751        251
+Weighted avg      0.810      0.797      0.800        251
