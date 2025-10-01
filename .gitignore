@@ -1,0 +1,38 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv
+venv/
+.DS_Store
+
+# Jupyter and notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# OS / Editor
+.idea/
+.vscode/
+
+# Build / dist
+build/
+dist/
+
+# Large data outputs
+kinases_all.csv
+kinases_revised.csv
+kinases_domains.csv
+duplicates_report.csv
+
+# Embeddings and intermediates
+kinases_embeddings/
+kinases_domains_embeddings/
+
+# Clustering outputs
+clustering/*.csv
+clustering/*.txt
+
+# HMMER intermediates
+hmmer_results.domtblout
+Pkinase.hmm
+
