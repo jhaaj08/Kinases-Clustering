@@ -101,6 +101,15 @@ All data sources, tool versions, and processing parameters are documented in `da
 - Missing or ambiguous labels: assigned to "Other"
 - Minimum class size for supervised training: 5 samples
 
+**Label normalization and recovery**: To maximize data utilization, we applied hierarchical label recovery to reduce the "Other" category from 70.2% to 55.0%:
+
+1. **Subfamily mapping** (235 sequences): Curated dictionary mapping kinase subfamilies to major groups (e.g., PKA→AGC, CDK→CMGC, EGFR→TK) based on Manning et al. [3]
+2. **Protein name parsing** (747 sequences): Regex pattern matching on protein names (e.g., "tyrosine kinase"→TK, "calcium/calmodulin"→CAMK)
+3. **Pfam domain annotation** (metadata only): Sequences confirmed to have kinase domains (PF00069, PF07714)
+4. **Cluster majority voting** (optional): CD-HIT clustering with ≥80% label agreement for propagation
+
+All label assignments tracked with provenance tags (original, subfamily_mapping, protein_name_parsing, cluster_vote) for transparency. Conservative thresholds ensured high-precision assignments. Final distribution: 2,911 labeled sequences (45.0%), 3,554 in "Other" (55.0%). Label recovery increased usable dataset by 50.9% (1,929→2,911 sequences), particularly benefiting TK (+702), Histidine (+120), and CMGC (+47).
+
 #### 2.1.3 Data Cleaning Pipeline
 
 **Kinase sequence retrieval**: We downloaded 20,262 kinase sequences from UniProt (SwissProt reviewed entries) by querying for proteins with "kinase" annotations (accessed October 2025). Each entry included the protein sequence, functional annotations, and kinome group classification.
@@ -110,7 +119,7 @@ All data sources, tool versions, and processing parameters are documented in `da
 2. Applied CD-HIT [15] clustering at 60% sequence identity to reduce redundancy (removed 10,926 sequences, 62.8%)
 3. Final cleaned dataset: 6,465 representative kinase sequences
 
-**Label hierarchy**: Kinase sequences were classified into 11 major groups based on Manning's kinome classification [3]: AGC, CAMK, CK1, CMGC, STE, TK (tyrosine kinase), TKL, RGC, Atypical, Histidine, and Other. The "Other" category, comprising 70% of sequences, was excluded from most analyses to focus on well-defined kinase families.
+**Label hierarchy**: Kinase sequences were classified into 11 major groups based on Manning's kinome classification [3]: AGC, CAMK, CK1, CMGC, STE, TK (tyrosine kinase), TKL, RGC, Atypical, Histidine, and Other. Initial annotations placed 70% of sequences in "Other" due to missing or ambiguous subfamily information. After label recovery (described in Section 2.1.2), this was reduced to 55%, recovering 982 sequences for analysis. The remaining "Other" category was excluded from clustering and supervised learning to focus on well-defined kinase families.
 
 **Class distribution** (after excluding "Other", n=1,929):
 - TK: 601 (31.1%)
