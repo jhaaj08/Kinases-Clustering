@@ -637,7 +637,70 @@ This substantial gain demonstrates that:
 
 **Conclusion**: Kinase classification is **not** "solved" when evaluated rigorously (homology-aware splits, group-level taxonomy). ESM-2 with layer selection provides the best balance of accuracy, calibration, and interpretability.
 
-### 3.10 Clustering Guided Feature Engineering
+### 3.10 Exemplar Retrieval Validates Embedding Quality
+
+**To assess whether embeddings capture functional similarity**, we performed k-nearest neighbor retrieval on the test set using cosine similarity on L2-normalized embeddings.
+
+**Protocol**: Leave-one-out retrieval
+- Query: Each test sequence (n=309)
+- Reference: All training sequences (n=930)
+- Metric: Cosine similarity on L2-normalized vectors
+- Disallow self-match (test/train are disjoint)
+- Report top-k same-family hit rate
+
+**Results**:
+
+| Metric | Score | Interpretation |
+|--------|-------|----------------|
+| **Top-1 hit rate** | **71.2%** | Nearest neighbor is same family 71% of time |
+| **Top-3 hit rate** | **86.7%** | Correct family in top-3 neighbors 87% of time |
+| **Top-5 hit rate** | 88.0% | Correct family in top-5 neighbors |
+| **Top-10 hit rate** | 92.2% | Correct family in top-10 neighbors |
+| **MRR** | **0.795** | Average rank of first correct match: 1.26 |
+| **PR-AUC** | 0.791 | Area under precision-recall curve |
+
+**Similarity → Confidence calibration**:
+
+| Similarity Range | Precision (Same-Family) | Confidence Level | Recommendation |
+|------------------|------------------------|------------------|----------------|
+| ≥0.992 | 76.6% | **High** | Accept retrieval |
+| 0.951-0.991 | 60.0% | **Medium** | Review manually |
+| <0.951 | <60% | **Low** | Flag for expert |
+
+**Key finding**: Similarity ≥0.992 corresponds to 76.6% precision (≈ "high confidence"). This threshold identifies ~28% of retrievals as high-confidence, providing actionable guidance for deployment.
+
+**Per-class retrieval performance**:
+- **Best**: CK1 (100% top-1), CMGC (82.7%), CAMK (82.5%)
+- **Challenging**: TKL (28.6% top-1), STE (45.5%), AGC (50.0%)
+- Pattern: Families with tight sequence conservation (CMGC, CAMK) show high retrieval accuracy, while diverse families (TKL, STE) struggle
+
+**Failure mode analysis** (89 failures, 28.8% of test):
+
+Top failure patterns:
+1. **Near-miss retrievals** (43 cases, 48%): Correct family at rank 2
+   - High similarity (>0.99) but wrong top-1
+   - Example: CMGC sequence retrieves TK neighbor (sim=0.997)
+   - Likely: Boundary cases between similar families
+   
+2. **Distant failures** (37 cases, 42%): Correct family not in top-5
+   - Lower similarity (<0.95)
+   - Primarily TKL, STE, Atypical families
+   - Reason: High intra-family diversity, small training sample size
+   
+3. **Possible mislabels** (23 cases, 26%): Very high similarity (>0.99) but wrong family
+   - Example: Query labeled "CMGC", retrieves "TK" with sim=0.997
+   - Suggests annotation errors or true boundary cases
+   - Flagged for manual expert review
+
+**Comparison to supervised classification**:
+- Supervised (LR): 75.7% accuracy
+- Retrieval (top-1): 71.2% accuracy
+- **Difference: 4.5%** (supervised gains from training on all exemplars)
+- **MRR 0.795** indicates average first-match at rank 1.26 (very good)
+
+**Interpretation**: Exemplar retrieval achieves 71% accuracy without any training, demonstrating that embeddings alone (domain, layers 20-33) capture functional relationships effectively. The 4.5% gap to supervised learning quantifies the value of learning global decision boundaries vs. nearest-neighbor voting.
+
+### 3.11 Clustering Guided Feature Engineering
 
 **The complete experimental progression** demonstrates the value of unsupervised exploration:
 

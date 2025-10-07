@@ -1,0 +1,26 @@
+{
+  "dataset": {
+    "train_size": 930,
+    "test_size": 309,
+    "n_classes": 8,
+    "embedding_dim": 1280
+  },
+  "retrieval_performance": {
+    "top1_hit_rate": 0.7119741100323624,
+    "top3_hit_rate": 0.8673139158576052,
+    "top5_hit_rate": 0.8802588996763754,
+    "top10_hit_rate": 0.9223300970873787,
+    "mrr": 0.7954101813325114,
+    "pr_auc": 0.7909536250411235
+  },
+  "similarity_statistics": {
+    "mean": 0.9784029722213745,
+    "std": 0.01584065891802311,
+    "min": 0.861886203289032,
+    "max": 0.9986164569854736
+  },
+  "failures": {
+    "total": 89,
+    "rate": 0.28802588996763756
+  }
+}
