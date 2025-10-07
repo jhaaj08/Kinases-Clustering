@@ -1,0 +1,22 @@
+{
+  "total_sequences": 6465,
+  "label_distribution": {
+    "Other": 3554,
+    "TK": 1303,
+    "CMGC": 336,
+    "CAMK": 289,
+    "Histidine": 280,
+    "AGC": 212,
+    "Atypical": 192,
+    "STE": 143,
+    "TKL": 77,
+    "CK1": 55,
+    "RGC": 24
+  },
+  "label_sources": {
+    "original": 5483,
+    "protein_name_parsing": 747,
+    "subfamily_mapping": 235
+  },
+  "other_percentage": 54.97293116782676
+}
