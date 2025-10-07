@@ -81,10 +81,13 @@ def find_ploop(sequence: str) -> Tuple[bool, int, float]:
     return False, -1, 0.0
 
 
-def find_vaik_region(sequence: str) -> Tuple[bool, int]:
+def find_vaik_region(sequence: str) -> Tuple[bool, int, int]:
     """
     Find β3-Lys motif (VAIK region - characteristic of kinases).
     This is a more flexible search for the conserved lysine region.
+    
+    Returns:
+        (found: bool, position: int, lysine_position: int)
     """
     # Look for VAIK or similar patterns (V/I/L-A/G-I/V-K)
     patterns = [
@@ -97,9 +100,48 @@ def find_vaik_region(sequence: str) -> Tuple[bool, int]:
     for pattern in patterns:
         match = re.search(pattern, sequence)
         if match:
-            return True, match.start()
+            # Position of K in the motif (usually at index 3)
+            motif_seq = match.group()
+            k_offset = motif_seq.index('K')
+            k_pos = match.start() + k_offset
+            return True, match.start(), k_pos
     
-    return False, -1
+    return False, -1, -1
+
+
+def calculate_k_e_salt_bridge_distance(sequence: str, vaik_k_pos: int) -> Tuple[int, bool]:
+    """
+    Calculate K-E salt bridge distance (sequence-based proxy).
+    
+    In kinases, the conserved Lys (β3) forms a salt bridge with a Glu in the αC helix.
+    This is typically 20-40 residues downstream of the β3-Lys.
+    
+    Args:
+        sequence: Protein sequence
+        vaik_k_pos: Position of the conserved Lys from VAIK motif
+    
+    Returns:
+        (distance: int, found: bool) - distance to nearest acidic residue (E/D)
+    """
+    if vaik_k_pos == -1:
+        return -1, False
+    
+    # Look for acidic residue (E preferred, D acceptable) within 20-50 residues downstream
+    search_start = vaik_k_pos + 15
+    search_end = min(vaik_k_pos + 55, len(sequence))
+    
+    if search_start >= len(sequence):
+        return -1, False
+    
+    search_region = sequence[search_start:search_end]
+    
+    # Find first E or D
+    for i, aa in enumerate(search_region):
+        if aa in ['E', 'D']:
+            distance = search_start - vaik_k_pos + i
+            return distance, True
+    
+    return -1, False
 
 
 def find_alphac_acidic(sequence: str, search_window: int = 100) -> Tuple[bool, int]:
@@ -175,8 +217,14 @@ def extract_motif_features(sequence: str) -> Dict[str, float]:
     features['ploop_consensus'] = ploop_consensus
     
     # 3. β3-Lys (VAIK region)
-    vaik_found, vaik_pos = find_vaik_region(sequence)
+    vaik_found, vaik_pos, vaik_k_pos = find_vaik_region(sequence)
     features['vaik_present'] = int(vaik_found)
+    
+    # 3b. K-E salt bridge distance (NEW - reviewer requested)
+    k_e_distance, k_e_found = calculate_k_e_salt_bridge_distance(sequence, vaik_k_pos)
+    features['k_e_distance'] = k_e_distance if k_e_found else -1
+    features['k_e_salt_bridge_present'] = int(k_e_found)
+    features['k_e_distance_normal'] = int(25 <= k_e_distance <= 40) if k_e_found else 0  # Typical range
     
     # 4. αC helix acidic residue
     alphac_found, alphac_pos = find_alphac_acidic(sequence)
@@ -213,10 +261,46 @@ def extract_motif_features(sequence: str) -> Dict[str, float]:
     gk_features = calculate_gatekeeper_features(sequence, dfg_pos)
     features.update(gk_features)
     
-    # 8. Core motif triad (all three present = canonical kinase)
+    # 8. HRD/DFG state features (NEW - reviewer requested)
+    # DFG conformation proxy: check residues around DFG
+    if dfg_found and dfg_pos + 5 < seq_len:
+        # DFG-in state typically has specific residue patterns
+        post_dfg_region = sequence[dfg_pos+3:dfg_pos+6]
+        features['dfg_state_hydrophobic'] = sum(1 for aa in post_dfg_region if aa in 'FVILM') / len(post_dfg_region)
+    else:
+        features['dfg_state_hydrophobic'] = 0
+    
+    # HRD-DFG spacing (another indicator of active/inactive state)
+    if hrd_found and dfg_found and hrd_pos < dfg_pos:
+        hrd_dfg_spacing = dfg_pos - hrd_pos
+        features['hrd_dfg_spacing'] = hrd_dfg_spacing
+        features['hrd_dfg_spacing_normal'] = int(20 <= hrd_dfg_spacing <= 60)  # Typical range
+    else:
+        features['hrd_dfg_spacing'] = -1
+        features['hrd_dfg_spacing_normal'] = 0
+    
+    # 9. Core motif triad (all three present = canonical kinase)
     features['core_triad_complete'] = int(dfg_found and hrd_found and ape_found)
     
-    # 9. Sequence-level features
+    # Extended motif completeness (including VAIK and K-E)
+    extended_motifs_present = sum([
+        dfg_found, hrd_found, ape_found, vaik_found, k_e_found
+    ])
+    features['extended_motif_completeness'] = extended_motifs_present / 5.0
+    
+    # 10. Overall motif integrity score (for per-sequence reports)
+    # This score combines presence and proper spacing of key motifs
+    integrity_score = (
+        features['core_triad_complete'] * 0.3 +
+        features['k_e_salt_bridge_present'] * 0.2 +
+        features['ploop_present'] * 0.15 +
+        features['vaik_present'] * 0.15 +
+        features['hrd_dfg_spacing_normal'] * 0.1 +
+        features['k_e_distance_normal'] * 0.1
+    )
+    features['motif_integrity_score'] = integrity_score
+    
+    # 11. Sequence-level features
     features['sequence_length'] = seq_len
     
     return features

@@ -39,10 +39,15 @@ def run_cdhit_clustering(sequences_df, identity=0.4, output_prefix="cdhit_splits
     """
     Run CD-HIT to cluster sequences at specified identity.
     
+    Args:
+        sequences_df: DataFrame with sequences
+        identity: Sequence identity threshold (0.0-1.0)
+        output_prefix: Prefix for output files
+    
     Returns:
         DataFrame with cluster_id column added
     """
-    print(f"\nRunning CD-HIT clustering (identity={identity})...")
+    print(f"\nRunning CD-HIT clustering (identity={identity:.0%})...")
     
     # Create temporary FASTA
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
@@ -273,6 +278,11 @@ def main():
         default='data',
         help='Output directory for splits.json'
     )
+    parser.add_argument(
+        '--multi-identity',
+        action='store_true',
+        help='Generate splits at multiple identities (70%%, 50%%, 40%%)'
+    )
     
     args = parser.parse_args()
     
@@ -281,7 +291,15 @@ def main():
     print("="*80)
     print()
     print(f"Input:           {args.input}")
-    print(f"Identity:        {args.identity}")
+    
+    # Determine which identities to process
+    if args.multi_identity:
+        identities = [0.7, 0.5, 0.4]
+        print(f"Mode:            Multi-identity (70%, 50%, 40%)")
+    else:
+        identities = [args.identity]
+        print(f"Identity:        {args.identity}")
+    
     print(f"Test size:       {args.test_size}")
     print(f"Random seed:     {args.seed}")
     print(f"Min class size:  {args.min_class_size}")
@@ -303,42 +321,79 @@ def main():
     df_no_other = df[df['kinome_group_major'] != 'Other'].copy()
     print(f"  Excluded 'Other': {len(df_no_other):,} sequences remaining")
     
-    # Run CD-HIT clustering
-    df_clustered = run_cdhit_clustering(df_no_other, identity=args.identity)
-    
-    if df_clustered is None:
-        print("❌ CD-HIT clustering failed")
-        sys.exit(1)
-    
-    # Create splits
-    train_ids, test_ids, metadata = create_homology_aware_split(
-        df_clustered,
-        test_size=args.test_size,
-        random_state=args.seed,
-        min_class_size=args.min_class_size
-    )
-    
-    # Save splits
-    splits_file = save_splits(train_ids, test_ids, metadata, output_dir=args.output_dir)
+    # Process each identity threshold
+    all_splits = {}
+    for identity in identities:
+        print("\n" + "="*80)
+        print(f"Processing identity threshold: {identity:.0%}")
+        print("="*80)
+        
+        # Run CD-HIT clustering
+        df_clustered = run_cdhit_clustering(
+            df_no_other, 
+            identity=identity,
+            output_prefix=f"cdhit_splits_{int(identity*100)}"
+        )
+        
+        if df_clustered is None:
+            print(f"❌ CD-HIT clustering failed for identity={identity}")
+            continue
+        
+        # Create splits
+        train_ids, test_ids, metadata = create_homology_aware_split(
+            df_clustered,
+            test_size=args.test_size,
+            random_state=args.seed,
+            min_class_size=args.min_class_size
+        )
+        
+        # Update metadata with identity
+        metadata['identity_threshold'] = identity
+        
+        # Save splits with identity suffix
+        identity_suffix = f"_{int(identity*100)}" if args.multi_identity else ""
+        output_file = f"{args.output_dir}/splits{identity_suffix}.json"
+        
+        os.makedirs(args.output_dir, exist_ok=True)
+        with open(output_file, 'w') as f:
+            json.dump({
+                'train_ids': train_ids,
+                'test_ids': test_ids,
+                'metadata': metadata
+            }, f, indent=2)
+        
+        all_splits[f"{int(identity*100)}%"] = {
+            'file': output_file,
+            'train': len(train_ids),
+            'test': len(test_ids),
+            'metadata': metadata
+        }
+        
+        print(f"\n✅ Splits saved to: {output_file}")
+        print(f"  Train: {len(train_ids):,} sequences ({len(train_ids)/(len(train_ids)+len(test_ids))*100:.1f}%)")
+        print(f"  Test:  {len(test_ids):,} sequences ({len(test_ids)/(len(train_ids)+len(test_ids))*100:.1f}%)")
+        print(f"  Clusters: {metadata.get('n_clusters', 'N/A')}")
+        print(f"  No homology overlap (≤{identity:.0%} identity threshold)")
     
     # Update provenance
-    print("\nUpdating provenance...")
+    print("\n" + "="*80)
+    print("Updating provenance...")
     prov = ProvenanceTracker(output_dir=args.output_dir)
-    prov.add_split_info(metadata)
-    prov.add_cdhit_info(thresholds={"splits": args.identity})
+    for identity_label, split_info in all_splits.items():
+        prov.add_split_info(split_info['metadata'])
+    prov.add_cdhit_info(thresholds={"splits": list(identities)})
     print(f"✅ Updated {prov.provenance_file}")
     
     print("\n" + "="*80)
     print("✅ SPLIT GENERATION COMPLETE!")
     print("="*80)
     print()
-    print("Summary:")
-    print(f"  Train: {len(train_ids):,} sequences ({len(train_ids)/(len(train_ids)+len(test_ids))*100:.1f}%)")
-    print(f"  Test:  {len(test_ids):,} sequences ({len(test_ids)/(len(train_ids)+len(test_ids))*100:.1f}%)")
-    print(f"  No homology overlap (40% identity threshold)")
-    print(f"  Stratified by kinase family")
-    print()
-    print(f"Splits saved to: {splits_file}")
+    print("Summary of all splits:")
+    for identity_label, split_info in all_splits.items():
+        print(f"\n  {identity_label} identity:")
+        print(f"    File:  {split_info['file']}")
+        print(f"    Train: {split_info['train']:,} sequences")
+        print(f"    Test:  {split_info['test']:,} sequences")
     print()
 
 

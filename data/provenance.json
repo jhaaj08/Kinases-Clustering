@@ -1,6 +1,6 @@
 {
   "created_at": "2025-10-07T14:34:09.553046",
-  "updated_at": "2025-10-07T14:56:50.791344",
+  "updated_at": "2025-10-07T15:37:33.509987",
   "uniprot": {},
   "pfam_interpro": {
     "pfam_ids": [
@@ -39,9 +39,11 @@
   "cdhit": {
     "version": "====== CD-HIT version 4.8.1 (built on Apr 24 2025) ======",
     "thresholds": {
-      "data_cleaning": 0.6,
-      "homology_aware_splits": 0.4,
-      "rationale": "60% for redundancy reduction, 40% for preventing test leakage"
+      "splits": [
+        0.7,
+        0.5,
+        0.4
+      ]
     }
   },
   "environment": {
@@ -78,7 +80,7 @@
   ],
   "files": {},
   "splits": {
-    "updated_at": "2025-10-07T14:34:09.553049",
+    "updated_at": "2025-10-07T15:37:33.496866",
     "method": "StratifiedGroupKFold (n_splits=5, first fold as test)",
     "homology_threshold": "40% identity (CD-HIT)",
     "stratified": true,
@@ -124,7 +126,8 @@
       "TKL": 14,
       "STE": 11,
       "CK1": 4
-    }
+    },
+    "identity_threshold": 0.4
   },
   "inclusion_exclusion_rules": {
     "updated_at": "2025-10-07T14:36:39.669264",
