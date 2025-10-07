@@ -11,6 +11,7 @@ Key comparisons:
 """
 
 import os
+import json
 import argparse
 import numpy as np
 import pandas as pd
@@ -26,15 +27,20 @@ from sklearn.metrics import (
 )
 
 
-def load_data(emb_dir, labels_file, exclude_other=True):
+def load_data(emb_dir, labels_file, splits_file=None, exclude_other=True):
     """
     Load embeddings and align with labels.
+    
+    Args:
+        splits_file: Optional path to splits.json for homology-aware splits
     
     Returns:
         X: embeddings (N, 1280)
         y: labels (N,)
         ids: uniprot_ids (N,)
         label_names: original label strings
+        le: label encoder
+        use_saved_splits: boolean indicating if splits were loaded
     """
     print("="*80)
     print("LOADING DATA")
@@ -64,6 +70,12 @@ def load_data(emb_dir, labels_file, exclude_other=True):
     )
     
     print(f"✅ Loaded labels from: {labels_file}")
+    
+    # Check if saved splits exist
+    use_saved_splits = False
+    if splits_file and os.path.exists(splits_file):
+        print(f"✅ Found saved splits: {splits_file}")
+        use_saved_splits = True
     
     # Filter
     if exclude_other:
@@ -104,12 +116,37 @@ def load_data(emb_dir, labels_file, exclude_other=True):
         print(f"  {cls:12s}: {count:4d} ({pct:5.1f}%)")
     print()
     
-    return X_aligned, y, ids_aligned, label_names, le
+    return X_aligned, y, ids_aligned, label_names, le, use_saved_splits
 
 
-def train_and_evaluate(X, y, label_encoder, random_state=42):
+def load_saved_splits(splits_file, ids_array):
+    """
+    Load saved train/test splits and return indices.
+    
+    Returns:
+        train_indices, test_indices (arrays of positions in ids_array)
+    """
+    with open(splits_file, 'r') as f:
+        splits_data = json.load(f)
+    
+    train_ids_saved = set(splits_data['train_ids'])
+    test_ids_saved = set(splits_data['test_ids'])
+    
+    # Map to indices
+    id_to_idx = {uid: i for i, uid in enumerate(ids_array)}
+    
+    train_indices = [id_to_idx[uid] for uid in train_ids_saved if uid in id_to_idx]
+    test_indices = [id_to_idx[uid] for uid in test_ids_saved if uid in id_to_idx]
+    
+    return np.array(train_indices), np.array(test_indices)
+
+
+def train_and_evaluate(X, y, ids, label_encoder, splits_file=None, random_state=42):
     """
     Train logistic regression with cross-validation and test evaluation.
+    
+    Args:
+        splits_file: Optional path to saved splits (homology-aware)
     
     Returns:
         Dictionary with trained model and metrics
@@ -119,10 +156,19 @@ def train_and_evaluate(X, y, label_encoder, random_state=42):
     print("="*80)
     print()
     
-    # Stratified split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, random_state=random_state
-    )
+    # Use saved splits if available, otherwise stratified random split
+    if splits_file and os.path.exists(splits_file):
+        print(f"Using saved homology-aware splits from: {splits_file}")
+        train_indices, test_indices = load_saved_splits(splits_file, ids)
+        X_train, X_test = X[train_indices], X[test_indices]
+        y_train, y_test = y[train_indices], y[test_indices]
+        print("✅ Loaded homology-aware splits (no sequence overlap > 40% identity)")
+    else:
+        print("Using random stratified split (NO homology awareness)")
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, stratify=y, random_state=random_state
+        )
+        print("⚠️  WARNING: Random split may have homologous sequences in train/test")
     
     print(f"Train set: {len(X_train):,} samples")
     print(f"Test set:  {len(X_test):,} samples")
@@ -385,6 +431,11 @@ def main():
         help='CSV file with labels'
     )
     parser.add_argument(
+        '--splits',
+        default='data/splits.json',
+        help='JSON file with saved train/test splits (homology-aware)'
+    )
+    parser.add_argument(
         '--output-dir',
         default='supervised_results',
         help='Output directory for results'
@@ -406,17 +457,20 @@ def main():
     
     print(f"Embeddings:  {args.emb_dir}")
     print(f"Labels:      {args.labels}")
+    print(f"Splits:      {args.splits}")
     print(f"Output:      {args.output_dir}")
     print(f"Random seed: {args.seed}")
     print()
     
     # Load data
-    X, y, ids, label_names, label_encoder = load_data(
-        args.emb_dir, args.labels, exclude_other=True
+    X, y, ids, label_names, label_encoder, use_saved_splits = load_data(
+        args.emb_dir, args.labels, splits_file=args.splits, exclude_other=True
     )
     
     # Train and evaluate
-    results = train_and_evaluate(X, y, label_encoder, random_state=args.seed)
+    results = train_and_evaluate(X, y, ids, label_encoder, 
+                                splits_file=args.splits if use_saved_splits else None,
+                                random_state=args.seed)
     
     # Save results
     save_results(results, output_dir=args.output_dir)

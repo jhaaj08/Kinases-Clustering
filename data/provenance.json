@@ -1,0 +1,138 @@
+{
+  "created_at": "2025-10-07T14:34:09.553046",
+  "updated_at": "2025-10-07T14:36:39.669441",
+  "uniprot": {},
+  "pfam_interpro": {
+    "pfam_ids": [
+      "PF00069",
+      "PF07714"
+    ],
+    "pfam_names": {
+      "PF00069": "Protein kinase domain (Ser/Thr/Tyr)",
+      "PF07714": "Protein tyrosine kinase"
+    },
+    "endpoints": {
+      "PF00069": "https://www.ebi.ac.uk/interpro/api/entry/pfam/PF00069?annotation=hmm",
+      "PF07714": "https://www.ebi.ac.uk/interpro/api/entry/pfam/PF07714?annotation=hmm"
+    },
+    "downloaded_at": "2025-10-07T14:36:39.669439",
+    "source": "InterPro/Pfam via EBI API",
+    "response_metadata": {
+      "note": "HMM files downloaded via InterPro API (gzip-compressed)",
+      "access_date": "2025-10-07T14:36:39.669436"
+    }
+  },
+  "hmmer": {
+    "version": "# hmmsearch :: search profile(s) against a sequence database",
+    "command": "hmmsearch --domtblout OUTPUT -E THRESHOLD HMM FASTA",
+    "parameters": {
+      "evalue_threshold": 0.001,
+      "boundary_type": "envelope",
+      "domain_selection": "best (lowest E-value, then highest score)",
+      "multi_domain_handling": "keep best domain per sequence",
+      "coordinate_system": "1-based HMMER \u2192 0-based Python via slice [start-1:end]",
+      "fallback_strategy": "PF00069 \u2192 PF07714 \u2192 drop if none found"
+    },
+    "coordinate_system": "1-based (HMMER) \u2192 0-based Python slice via start-1:end",
+    "boundary_type": "envelope (env_from, env_to)"
+  },
+  "cdhit": {
+    "version": "====== CD-HIT version 4.8.1 (built on Apr 24 2025) ======",
+    "thresholds": {
+      "data_cleaning": 0.6,
+      "homology_aware_splits": 0.4,
+      "rationale": "60% for redundancy reduction, 40% for preventing test leakage"
+    }
+  },
+  "environment": {
+    "python_version": "3.12.10",
+    "platform": "macOS-15.2-arm64-arm-64bit",
+    "os": "Darwin",
+    "packages": {
+      "torch": "2.8.0",
+      "fair-esm": "2.0.0",
+      "scikit-learn": "1.7.1",
+      "pandas": "2.3.1",
+      "numpy": "2.2.6"
+    },
+    "git_commit": "b96b4930"
+  },
+  "processing_steps": [],
+  "files": {},
+  "splits": {
+    "updated_at": "2025-10-07T14:34:09.553049",
+    "method": "StratifiedGroupKFold (n_splits=5, first fold as test)",
+    "homology_threshold": "40% identity (CD-HIT)",
+    "stratified": true,
+    "random_state": 42,
+    "test_size_actual": 0.2517985611510791,
+    "test_size_target": 0.2,
+    "train_n": 936,
+    "test_n": 315,
+    "total_clusters": 375,
+    "train_clusters": 302,
+    "test_clusters": 73,
+    "cluster_overlap": 0,
+    "classes_included": [
+      "TK",
+      "CMGC",
+      "CAMK",
+      "STE",
+      "AGC",
+      "TKL",
+      "CK1",
+      "Atypical"
+    ],
+    "classes_excluded": [
+      "Histidine",
+      "RGC"
+    ],
+    "train_class_distribution": {
+      "TK": 293,
+      "CMGC": 182,
+      "CAMK": 141,
+      "STE": 119,
+      "AGC": 96,
+      "TKL": 46,
+      "CK1": 38,
+      "Atypical": 21
+    },
+    "test_class_distribution": {
+      "TK": 110,
+      "CAMK": 80,
+      "CMGC": 52,
+      "AGC": 30,
+      "Atypical": 14,
+      "TKL": 14,
+      "STE": 11,
+      "CK1": 4
+    }
+  },
+  "inclusion_exclusion_rules": {
+    "updated_at": "2025-10-07T14:36:39.669264",
+    "data_source": "UniProt SwissProt (reviewed entries only)",
+    "query": "reviewed:true AND (keyword:KW-0418 OR name:kinase*)",
+    "isoforms": "canonical isoform only (default from UniProt)",
+    "fragments": "removed if flagged as fragment by UniProt",
+    "minimum_sequence_length": 100,
+    "minimum_domain_length": 50,
+    "domain_required": "Yes - sequences without PF00069/PF07714 excluded from domain analysis",
+    "multi_domain_handling": "keep best-scoring domain per sequence (lowest E-value, then highest bit score)",
+    "controlled_vocabulary_labels": [
+      "AGC",
+      "CAMK",
+      "CK1",
+      "CMGC",
+      "STE",
+      "TK",
+      "TKL",
+      "RGC",
+      "Atypical",
+      "Histidine",
+      "Other"
+    ],
+    "label_source": "UniProt kinome_group annotations + Manning classification",
+    "missing_labels": "classified as 'Other'",
+    "minimum_class_size_for_training": 5
+  }
+}

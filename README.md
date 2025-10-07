@@ -264,9 +264,71 @@ print(f"Median length: {df['seq_length'].median():.0f} amino acids")
 - Large downloads may take several minutes
 - Be considerate of UniProt's servers when making frequent requests
 
+## Data Provenance & Reproducibility
+
+For publication-ready reproducibility, all data sources, tool versions, and processing parameters are tracked in `data/provenance.json`.
+
+### Initialize Provenance Tracking
+
+```bash
+python init_provenance.py
+```
+
+This captures:
+- **Tool versions**: HMMER 3.3, CD-HIT 4.8.1, Python 3.12, package versions
+- **Data sources**: UniProt query, Pfam profiles (PF00069, PF07714)
+- **Inclusion/exclusion rules**: SwissProt only, min length 100 aa, canonical isoforms
+- **Processing parameters**: E-value thresholds, coordinate systems, tie-break rules
+- **Split strategy**: Homology-aware (CD-HIT 40%), no overlap between train/test
+
+### Inclusion/Exclusion Criteria
+
+**Data source**: UniProt SwissProt (reviewed entries only)
+- Query: `reviewed:true AND (keyword:KW-0418 OR name:kinase*)`
+- Isoforms: Canonical only (UniProt default)
+- Fragments: Excluded if flagged by UniProt
+- Minimum sequence length: 100 amino acids
+
+**Domain extraction**:
+- Required: At least one Pfam domain (PF00069 or PF07714)
+- Multi-domain handling: Keep best domain (lowest E-value, then highest bit score)
+- Fallback: PF00069 → PF07714 → exclude if none found
+- Coordinate system: HMMER 1-based → Python 0-based via `slice[start-1:end]`
+
+**Labels**:
+- Controlled vocabulary: 11 major kinase groups (AGC, CAMK, CK1, CMGC, STE, TK, TKL, RGC, Atypical, Histidine, Other)
+- Source: UniProt annotations + Manning kinome classification
+- Missing labels: Classified as "Other"
+- Training: Minimum 5 samples per class
+
+### Homology-Aware Splits
+
+To prevent data leakage, train/test splits respect sequence homology:
+
+```bash
+python make_homology_aware_splits.py
+```
+
+This creates `data/splits.json` with:
+- **No homology overlap**: CD-HIT clustering at 40% identity
+- **No cluster spans train/test**: Entire clusters assigned to either train or test
+- **Stratified**: Maintains kinase family proportions
+- **Reproducible**: Fixed random seed (42)
+
+**Results**:
+- Train: 936 sequences (75%)
+- Test: 315 sequences (25%)
+- 375 homology clusters → 302 train, 73 test (0 overlap)
+
 ## Workflow
 
-### Step 1: Download All Kinases
+### Step 1: Initialize Provenance
+
+```bash
+python init_provenance.py
+```
+
+### Step 2: Download All Kinases
 
 ```bash
 python download_kinases.py

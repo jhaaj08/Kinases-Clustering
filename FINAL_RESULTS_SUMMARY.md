@@ -258,34 +258,36 @@ After establishing the best embeddings through unsupervised clustering, we train
 Embeddings: Same as best clustering (domain, layers 20-33 avg)
 Model: Multinomial Logistic Regression (saga, L2, balanced)
 Data: 1,251 kinases (8 classes after removing tiny classes)
-Split: Stratified 80/20 train/test
+Split: Homology-aware (CD-HIT 40%, no overlap) - 936 train / 315 test
 Validation: 5-fold stratified CV on train set
 ```
 
-### Results
+### Results (Homology-Aware Splits)
 
 | Metric | Value | Interpretation |
 |--------|-------|----------------|
-| **Test Accuracy** | **79.7%** | Correct predictions on held-out test |
-| **Macro-F1** | **0.7513** | Average per-class F1 (balanced metric) |
-| **Weighted-F1** | 0.7996 | F1 weighted by class frequency |
-| **CV Macro-F1** | 0.8040 ± 0.015 | 5-fold cross-validation score |
+| **Test Accuracy** | **74.9%** | Correct predictions on dissimilar sequences |
+| **Macro-F1** | **0.668** | Average per-class F1 (balanced metric) |
+| **Weighted-F1** | 0.751 | F1 weighted by class frequency |
+| **CV Macro-F1** | 0.754 ± 0.048 | 5-fold cross-validation score |
 
-### Per-Class Performance
+**Note**: Homology-aware splits prevent data leakage. Initial random split achieved 79.7%, but included homologous sequences in train/test.
+
+### Per-Class Performance (Homology-Aware)
 
 | Class | Precision | Recall | F1 | Support |
 |-------|-----------|--------|----|----|
-| **CMGC** | 0.843 | 0.915 | **0.878** | 47 |
-| **CAMK** | 0.864 | 0.864 | **0.864** | 44 |
-| **TK** | 0.838 | 0.765 | **0.800** | 81 |
-| **CK1** | 1.000 | 0.667 | 0.800 | 9 |
-| **AGC** | 0.857 | 0.720 | 0.783 | 25 |
-| **STE** | 0.690 | 0.769 | 0.727 | 26 |
-| Atypical | 0.500 | 0.714 | 0.588 | 7 |
-| TKL | 0.500 | 0.667 | 0.571 | 12 |
+| **CAMK** | 0.895 | 0.963 | **0.928** | 80 |
+| **Atypical** | 0.846 | 0.786 | **0.815** | 14 |
+| **CMGC** | 0.864 | 0.731 | **0.792** | 52 |
+| **TK** | 0.755 | 0.700 | **0.726** | 110 |
+| **CK1** | 0.500 | 1.000 | 0.667 | 4 |
+| **AGC** | 0.533 | 0.533 | 0.533 | 30 |
+| **TKL** | 0.391 | 0.643 | 0.486 | 14 |
+| **STE** | 0.444 | 0.364 | 0.400 | 11 |
 
-**Best families**: CMGC, CAMK (F1 > 0.86)  
-**Challenging**: Small classes (TKL, Atypical)
+**Best families**: CAMK (F1=0.928), Atypical (F1=0.815)  
+**Challenging**: STE, TKL, AGC (high intra-family sequence diversity)
 
 ---
 
@@ -294,20 +296,21 @@ Validation: 5-fold stratified CV on train set
 | Approach | Key Metric | Value | Purpose |
 |----------|-----------|-------|---------|
 | **Unsupervised** | Hungarian Acc | 56.6% | Validate embeddings without labels |
-| **Supervised** | Test Accuracy | **79.7%** | Quantify classification ceiling |
+| **Supervised (homology-aware)** | Test Accuracy | **74.9%** | True generalization to dissimilar sequences |
 
 **Key insights**:
 
-1. **Supervised gains ~40%** over unsupervised Hungarian matching (as expected with labels)
-2. **BUT clustering was essential FIRST** - it guided us to the right embeddings:
+1. **Supervised gains ~32%** over unsupervised Hungarian matching (as expected with labels)
+2. **Homology-aware split is critical**: Random split showed 79.7% but had data leakage; homology-aware (74.9%) reflects true generalization
+3. **Clustering was essential FIRST** - it guided us to the right embeddings:
    - Domain extraction (+279% ARI)
    - Mid-layer averaging (+32% ARI)
-3. **Same embeddings, different paradigms**:
+4. **Same embeddings, different paradigms**:
    - Unsupervised: discovers natural structure
    - Supervised: exploits labels for prediction
    - Both validate embedding quality from complementary angles
 
-**Conclusion**: Clustering wasn't a detour—it was the feature engineering pipeline that made supervised performance possible.
+**Conclusion**: Clustering wasn't a detour—it was the feature engineering pipeline that made supervised performance possible. Homology-aware evaluation ensures results reflect true generalization, not sequence memorization.
 
 ---
 
@@ -315,21 +318,27 @@ Validation: 5-fold stratified CV on train set
 
 **Main achievements**:
 - **Unsupervised**: 6.8× improvement over baseline (ARI: 0.052 → 0.354)
-- **Supervised**: 79.7% classification accuracy, 0.75 macro-F1
+- **Supervised**: 74.9% classification accuracy with homology-aware splits (prevents data leakage)
+- **Provenance**: Complete reproducibility with documented data sources, tool versions, and splits
 
-**Key innovation**: **Layer selection matters** - mid-layer averaging (20-33) outperforms last layer by 32%.
+**Key innovations**: 
+1. **Layer selection matters** - mid-layer averaging (20-33) outperforms last layer by 32%
+2. **Homology-aware evaluation** - prevents overestimation from sequence similarity
+3. **Unsupervised-to-supervised pipeline** - clustering guides feature engineering
 
 **Publication potential**: 
-- Strong methodological contribution (layer probing + domain extraction)
-- Solid quantitative results (both unsupervised and supervised)
-- Clear biological interpretation (CMGC/CAMK families best characterized)
+- Strong methodological contribution (layer probing + domain extraction + rigorous evaluation)
+- Solid quantitative results (both unsupervised and supervised with proper splits)
+- Clear biological interpretation (CAMK/Atypical best generalize, STE/AGC more diverse)
+- Full reproducibility (provenance tracking, saved splits, documented parameters)
 
 **Practical impact**: This finding generalizes to any ESM-2 downstream task - always try mid-layer embeddings!
 
 **Files**: 
 - Supervised model: `supervised_results/logistic_regression_model.joblib`
+- Homology-aware splits: `data/splits.json`
+- Provenance data: `data/provenance.json`
 - Full reports: `supervised_results/` directory
-- Comparison: `supervised_results/supervised_vs_clustering.txt`
 
 ---
 

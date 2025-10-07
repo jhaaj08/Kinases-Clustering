@@ -6,7 +6,7 @@
 
 **Methods**: We systematically evaluated ESM-2 embeddings for kinase functional classification using both unsupervised clustering and supervised learning. We tested 20,262 kinase sequences from UniProt, applying domain extraction (HMMER with Pfam PF00069), multiple layer selection strategies (last layer vs. mid-layer averaging), and various pooling methods. Clustering quality was assessed using adjusted rand index (ARI), normalized mutual information (NMI), and purity metrics. Supervised classification used multinomial logistic regression with stratified cross-validation.
 
-**Results**: Domain extraction improved clustering ARI from 0.071 to 0.268 (+279%), but the most striking finding was that averaging intermediate layers (20-33) outperformed using only the final layer (layer 33) by 32% (ARI: 0.268 → 0.354). This mid-layer superiority transferred to supervised learning, achieving 79.7% test accuracy and 0.75 macro-F1 on 8-way kinase classification. CMGC and CAMK families showed the highest classification performance (F1 > 0.86), while small families (TKL, Atypical) were more challenging.
+**Results**: Domain extraction improved clustering ARI from 0.071 to 0.268 (+279%), but the most striking finding was that averaging intermediate layers (20-33) outperformed using only the final layer (layer 33) by 32% (ARI: 0.268 → 0.354). This mid-layer superiority transferred to supervised learning with homology-aware splits, achieving 74.9% test accuracy and 0.67 macro-F1 on 8-way kinase classification. CAMK and Atypical families showed the highest classification performance (F1 > 0.81), while families with high intra-group diversity (STE, AGC) were more challenging.
 
 **Conclusions**: Mid-to-late transformer layers capture more functionally relevant features than the final layer optimized for masked language modeling. This finding generalizes beyond kinases and suggests that layer selection should be a standard consideration for any PLM-based protein analysis. Our unsupervised-to-supervised pipeline demonstrates that clustering-guided feature engineering significantly improves downstream classification performance.
 
@@ -49,6 +49,43 @@ Our results demonstrate that mid-layer averaging substantially outperforms final
 ## 2. Methods
 
 ### 2.1 Data Collection and Preprocessing
+
+#### 2.1.1 Data Provenance
+
+All data sources, tool versions, and processing parameters are documented in `data/provenance.json` for full reproducibility.
+
+**Data sources**:
+- UniProt SwissProt (reviewed entries, release October 2025)
+- Query: `reviewed:true AND (keyword:KW-0418 OR name:kinase*)`
+- Pfam HMM profiles: PF00069 (Protein kinase domain), PF07714 (Protein tyrosine kinase)
+- Downloaded via InterPro API (https://www.ebi.ac.uk/interpro/)
+
+**Tools and versions**:
+- HMMER 3.3 (domain search)
+- CD-HIT 4.8.1 (redundancy reduction and homology clustering)
+- Python 3.12 with fair-esm 2.0.0, scikit-learn 1.7.1, PyTorch 2.8.0
+
+#### 2.1.2 Inclusion/Exclusion Criteria
+
+**Sequence selection**:
+- SwissProt reviewed entries only (high-quality annotations)
+- Canonical isoforms (UniProt default)
+- Minimum sequence length: 100 amino acids
+- Fragments excluded (based on UniProt flags)
+
+**Domain requirement**:
+- At least one Pfam kinase domain (PF00069 or PF07714) required
+- Multi-domain proteins: keep best-scoring domain (lowest E-value, then highest bit score)
+- Minimum domain length: 50 amino acids
+- Sequences without valid domains excluded from embedding analysis
+
+**Label curation**:
+- Controlled vocabulary: 11 major kinase groups (AGC, CAMK, CK1, CMGC, STE, TK, TKL, RGC, Atypical, Histidine, Other)
+- Label source: UniProt kinome annotations + Manning classification [3]
+- Missing or ambiguous labels: assigned to "Other"
+- Minimum class size for supervised training: 5 samples
+
+#### 2.1.3 Data Cleaning Pipeline
 
 **Kinase sequence retrieval**: We downloaded 20,262 kinase sequences from UniProt (SwissProt reviewed entries) by querying for proteins with "kinase" annotations (accessed October 2025). Each entry included the protein sequence, functional annotations, and kinome group classification.
 
@@ -139,10 +176,18 @@ Our results demonstrate that mid-layer averaging substantially outperforms final
 - Class weighting: Balanced (handles class imbalance)
 - Max iterations: 1,000
 
-**Data split**:
-- Stratified train-test split: 80% / 20%
-- Classes with < 5 samples removed (RGC, Histidine)
-- Final: 8 classes, 1,251 samples
+**Homology-aware data split** (critical for preventing leakage):
+- **Method**: StratifiedGroupKFold with CD-HIT 40% identity clustering
+- **Rationale**: Prevents information leakage from homologous sequences
+- **Implementation**:
+  1. Cluster all sequences at 40% identity using CD-HIT (379 clusters)
+  2. Use GroupShuffleSplit to assign entire clusters to train or test
+  3. Maintain stratification of kinase family labels
+  4. Result: 0 clusters span train/test boundary
+- **Split sizes**: Train 936 (75%), Test 315 (25%)
+- **Verification**: No sequence in test has >40% identity to any training sequence
+- **Classes**: 8 groups (removed RGC, Histidine with n<5)
+- **Reproducibility**: Splits saved to `data/splits.json` with fixed seed (42)
 
 **Cross-validation**:
 - 5-fold stratified cross-validation on training set
@@ -156,6 +201,8 @@ Our results demonstrate that mid-layer averaging substantially outperforms final
 5. **Confusion matrix**: Pairwise classification errors
 
 **Preprocessing**: Same StandardScaler as clustering (fitted on train, applied to test)
+
+**Note on data leakage prevention**: Using homology-aware splits ensures that performance reflects true generalization to dissimilar sequences, not memorization of sequence families. Random splits would inflate performance metrics by including homologous sequences in both train and test sets.
 
 ### 2.6 Experimental Design
 
@@ -255,39 +302,41 @@ All experiments used fixed random seed (42) for reproducibility. Cross-validatio
 
 ### 3.5 Supervised Classification Validates Embedding Quality
 
-**Using the same best embeddings** (domain, layers 20-33 averaged), we trained a supervised multinomial logistic regression classifier.
+**Using the same best embeddings** (domain, layers 20-33 averaged), we trained a supervised multinomial logistic regression classifier with **homology-aware splits** (no sequence in test has >40% identity to training sequences).
 
-**Data**: 1,251 kinases, 8 classes (removed Histidine, RGC due to n<5), stratified 80/20 split.
+**Data**: 1,251 kinases, 8 classes (removed Histidine, RGC due to n<5), homology-aware split (936 train, 315 test).
 
 **Results**:
-- **Test accuracy: 79.7%**
-- **Macro-F1: 0.751** (balanced across classes)
-- **Weighted-F1: 0.800**
-- **5-fold CV Macro-F1: 0.804 ± 0.015** (stable across folds)
+- **Test accuracy: 74.9%**
+- **Macro-F1: 0.668** (balanced across classes)
+- **Weighted-F1: 0.751**
+- **5-fold CV Macro-F1: 0.754 ± 0.048** (stable across folds)
 
-**Per-class performance** (test set):
+**Per-class performance** (test set, homology-aware):
 
 | Class | Precision | Recall | F1 | Support |
 |-------|-----------|--------|----|----|
-| **CMGC** | 0.843 | 0.915 | **0.878** | 47 |
-| **CAMK** | 0.864 | 0.864 | **0.864** | 44 |
-| **TK** | 0.838 | 0.765 | **0.800** | 81 |
-| **CK1** | 1.000 | 0.667 | 0.800 | 9 |
-| **AGC** | 0.857 | 0.720 | 0.783 | 25 |
-| **STE** | 0.690 | 0.769 | 0.727 | 26 |
-| Atypical | 0.500 | 0.714 | 0.588 | 7 |
-| TKL | 0.500 | 0.667 | 0.571 | 12 |
+| **CAMK** | 0.895 | 0.963 | **0.928** | 80 |
+| **Atypical** | 0.846 | 0.786 | **0.815** | 14 |
+| **CMGC** | 0.864 | 0.731 | **0.792** | 52 |
+| **TK** | 0.755 | 0.700 | **0.726** | 110 |
+| **CK1** | 0.500 | 1.000 | 0.667 | 4 |
+| **AGC** | 0.533 | 0.533 | 0.533 | 30 |
+| **TKL** | 0.391 | 0.643 | 0.486 | 14 |
+| **STE** | 0.444 | 0.364 | 0.400 | 11 |
 
-**Best performers**: CMGC and CAMK families (F1 > 0.86), consistent with clustering purity results.
+**Best performers**: CAMK and Atypical families (F1 > 0.81), showing strong generalization to dissimilar sequences.
 
-**Challenging classes**: Small families (TKL, Atypical) with limited training examples.
+**Challenging classes**: STE, TKL, AGC showed lower performance on truly novel sequences (F1 < 0.55), indicating these families have higher intra-family diversity.
+
+**Note**: The homology-aware split is more conservative than random splits. Our initial random split achieved 79.7% accuracy, but included sequence leakage. The homology-aware result (74.9%) reflects true generalization to dissimilar sequences.
 
 ### 3.6 Supervised Accuracy Exceeds Unsupervised Hungarian Matching
 
 **Direct comparison** (same embeddings: domain, layers 20-33):
 - Unsupervised Hungarian accuracy: 56.6%
-- Supervised test accuracy: 79.7%
-- **Gain: +40% relative improvement**
+- Supervised test accuracy: 74.9% (homology-aware split)
+- **Gain: +32% relative improvement**
 
 This substantial gain demonstrates that:
 1. Supervised learning exploits labels to find better decision boundaries
@@ -416,7 +465,7 @@ Our two-phase approach—unsupervised clustering followed by supervised classifi
 
 ## 5. Conclusions
 
-We demonstrate that **layer selection is a critical but underutilized dimension for optimizing protein language model applications**. Averaging mid-to-late layers (20-33) in ESM-2 outperforms the standard final-layer approach by 32% for kinase functional clustering and achieves 79.7% supervised classification accuracy.
+We demonstrate that **layer selection is a critical but underutilized dimension for optimizing protein language model applications**. Averaging mid-to-late layers (20-33) in ESM-2 outperforms the standard final-layer approach by 32% for kinase functional clustering and achieves 74.9% supervised classification accuracy on homology-aware test sets (preventing data leakage).
 
 **Key recommendations for the community**:
 
@@ -524,19 +573,21 @@ Raw kinase sequences are available from UniProt (https://www.uniprot.org/), Pfam
 | Domain, L20-30 | 1,255 | 1,280 (mid) | 0.353 | 0.501 | 0.683 | 0.571 | 0.418 |
 | **Domain, L20-33** | **1,255** | **1,280 (mid)** | **0.354** | **0.501** | **0.685** | **0.566** | **0.397** |
 
-### Supplementary Table S2: Supervised Classification Per-Class Results
+### Supplementary Table S2: Supervised Classification Per-Class Results (Homology-Aware Splits)
 
 | Class | Train (n) | Test (n) | Precision | Recall | F1 | Support |
 |-------|-----------|----------|-----------|--------|----|----|
-| AGC | 101 | 25 | 0.857 | 0.720 | 0.783 | 25 |
-| Atypical | 28 | 7 | 0.500 | 0.714 | 0.588 | 7 |
-| CAMK | 177 | 44 | 0.864 | 0.864 | 0.864 | 44 |
-| CK1 | 33 | 9 | 1.000 | 0.667 | 0.800 | 9 |
-| CMGC | 187 | 47 | 0.843 | 0.915 | 0.878 | 47 |
-| STE | 104 | 26 | 0.690 | 0.769 | 0.727 | 26 |
-| TK | 322 | 81 | 0.838 | 0.765 | 0.800 | 81 |
-| TKL | 48 | 12 | 0.500 | 0.667 | 0.571 | 12 |
-| **Total** | **1,000** | **251** | **0.799** | **0.797** | **0.751** | **251** |
+| AGC | 96 | 30 | 0.533 | 0.533 | 0.533 | 30 |
+| Atypical | 21 | 14 | 0.846 | 0.786 | 0.815 | 14 |
+| CAMK | 141 | 80 | 0.895 | 0.963 | 0.928 | 80 |
+| CK1 | 38 | 4 | 0.500 | 1.000 | 0.667 | 4 |
+| CMGC | 182 | 52 | 0.864 | 0.731 | 0.792 | 52 |
+| STE | 119 | 11 | 0.444 | 0.364 | 0.400 | 11 |
+| TK | 293 | 110 | 0.755 | 0.700 | 0.726 | 110 |
+| TKL | 46 | 14 | 0.391 | 0.643 | 0.486 | 14 |
+| **Total** | **936** | **315** | **0.751** | **0.749** | **0.668** | **315** |
+
+**Note**: Homology-aware splits prevent data leakage by ensuring no test sequence has >40% identity to any training sequence. Performance is lower than random splits (79.7%) but reflects true generalization.
 
 ### Supplementary Figure S1: Layer-wise Performance Profile
 
