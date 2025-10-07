@@ -1,41 +1,73 @@
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
+*.egg
+
+# Environments
 .env
 .venv
+env/
 venv/
-.DS_Store
+ENV/
+env.bak/
+venv.bak/
 
-# Jupyter and notebooks
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
 .ipynb_checkpoints/
 *.ipynb
 
-# OS / Editor
-.idea/
-.vscode/
-
-# Build / dist
-build/
-dist/
-
-# Large data outputs
-kinases_all.csv
-kinases_revised.csv
-kinases_domains.csv
-duplicates_report.csv
-
-# Embeddings and intermediates
+# Data (large files)
 kinases_embeddings/
 kinases_domains_embeddings/
-kinases_domains_e*/
 *_embeddings/
 *_layers_*/
+*.npy
+*.fasta
+*.clstr
 
-# Clustering outputs
-clustering/*.csv
-clustering/*.txt
+# Results (generated)
+clustering/
+supervised_results/
+supervised_results_*/
+baselines_results/
+*_results/
+figures/
 
-# HMMER intermediates
-hmmer_results.domtblout
-Pkinase.hmm
+# Temporary
+*.tmp
+*.log
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep structure
+!.gitkeep

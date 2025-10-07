@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Kumar"
+    given-names: "Ajit"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "Layer Selection in Protein Language Models Improves Kinase Functional Classification"
+version: 1.0.0
+date-released: 2025-10-07
+url: "https://github.com/jhaaj08/Kinases-Clustering"
+repository-code: "https://github.com/jhaaj08/Kinases-Clustering"
+keywords:
+  - protein-language-models
+  - ESM-2
+  - kinase-classification
+  - layer-selection
+  - domain-extraction
+  - unsupervised-learning
+  - bioinformatics
+license: MIT
+abstract: |
+  We demonstrate that averaging mid-to-late transformer layers (20-33) in ESM-2
+  outperforms the standard final-layer approach by 32% for kinase functional
+  classification. This finding generalizes beyond kinases and suggests that layer
+  selection should be a standard consideration for any protein language model
+  application. We provide homology-aware evaluation at multiple identity thresholds
+  (70%, 50%, 40%), calibrated uncertainty quantification, and comprehensive baselines.
+  All code, data, and trained models are publicly available.
+references:
+  - type: article
+    authors:
+      - family-names: "Lin"
+        given-names: "Z"
+      - family-names: "Akin"
+        given-names: "H"
+      - family-names: "Rao"
+        given-names: "R"
+    title: "Evolutionary-scale prediction of atomic-level protein structure with a language model"
+    journal: "Science"
+    year: 2023
+    volume: 379
+    issue: 6637
+    start: 1123
+    end: 1130
+

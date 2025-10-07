@@ -1,0 +1,39 @@
+name: kinase-clustering
+channels:
+  - conda-forge
+  - bioconda
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.12
+  - pytorch=2.1.2
+  - numpy=1.26.3
+  - pandas=2.1.4
+  - scikit-learn=1.4.0
+  - scipy=1.11.4
+  - matplotlib=3.8.2
+  - seaborn=0.13.1
+  - tqdm=4.66.1
+  - requests=2.31.0
+  - statsmodels=0.14.1
+  
+  # Bioinformatics tools
+  - hmmer=3.3
+  - cd-hit=4.8.1
+  
+  # Development tools
+  - pytest=7.4.3
+  - pytest-cov=4.1.0
+  - black=23.12.1
+  - ruff=0.1.9
+  - mypy=1.8.0
+  - snakemake=7.32.4
+  
+  # Pip-only packages
+  - pip
+  - pip:
+      - fair-esm==2.0.0
+      
+name: kinase-clustering
+description: "Layer Selection in Protein Language Models for Kinase Classification"
+
