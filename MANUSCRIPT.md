@@ -261,23 +261,117 @@ Sequence-level pooling:
 
 ### 2.4 Unsupervised Clustering
 
-**Algorithm**: K-means clustering with k=10 (matching number of major kinase groups after excluding "Other" and very small classes)
+#### 2.4.1 Algorithm and Parameters
 
-**Hyperparameters**:
-- Initialization: k-means++ (default)
-- n_init: 50 (multiple random initializations)
-- max_iter: 500
-- Random state: 42
+**Algorithm**: K-means clustering (scikit-learn 1.3.0)
 
-**Preprocessing**: StandardScaler (zero mean, unit variance)
+**Hyperparameters** (fixed across all experiments for reproducibility):
+- **k** (number of clusters): 10 (matching number of major kinase groups after excluding "Other")
+- **Initialization**: k-means++ (smart initialization to speed convergence)
+- **n_init**: 50 (run algorithm 50 times with different seeds, return best)
+- **max_iter**: 500 (maximum iterations per run)
+- **Random state**: 42 (fixed for reproducibility)
+- **Algorithm**: lloyd (standard algorithm, deterministic with fixed seed)
 
-**Evaluation metrics**:
-1. **Adjusted Rand Index (ARI)**: Measures agreement between clusters and true labels, adjusted for chance (range: -1 to 1, random ≈ 0, perfect = 1)
-2. **Normalized Mutual Information (NMI)**: Information-theoretic measure of cluster-label dependence (range: 0 to 1)
-3. **Purity**: Fraction of samples in clusters matching the majority label
-4. **Hungarian Accuracy**: Best 1-to-1 cluster-to-label mapping (optimal reassignment)
-5. **Homogeneity, Completeness, V-measure**: Complementary clustering quality metrics
-6. **Silhouette Score**: Cluster separation quality in embedding space
+**Preprocessing**: StandardScaler applied to embeddings
+- Zero mean: \(\mu = 0\)
+- Unit variance: \(\sigma = 1\)
+- Fitted on full dataset (no train/test split for unsupervised)
+
+**Distance metric**: Euclidean (default for k-means)
+
+#### 2.4.2 Evaluation Metrics
+
+All metrics computed using scikit-learn with label alignment verified:
+
+1. **Adjusted Rand Index (ARI)**:
+   - Measures agreement between clusters and true labels, adjusted for chance
+   - Range: [-1, 1], random ≈ 0, perfect = 1
+   - Formula: \(\text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}\)
+
+2. **Normalized Mutual Information (NMI)**:
+   - Information-theoretic measure of cluster-label dependence
+   - Range: [0, 1], random = 0, perfect = 1
+   - Normalized by arithmetic mean of entropies
+
+3. **Purity**:
+   - Fraction of samples in clusters matching the majority label
+   - Range: [0, 1], higher is better
+   - Formula: \(\text{Purity} = \frac{1}{N} \sum_{k} \max_{j} |C_k \cap L_j|\)
+
+4. **Hungarian Accuracy**:
+   - Best 1-to-1 cluster-to-label mapping via Hungarian algorithm
+   - Optimal reassignment of cluster IDs to maximize accuracy
+   - Accounts for arbitrary cluster numbering
+
+5. **Homogeneity, Completeness, V-measure**:
+   - Homogeneity: Each cluster contains only members of a single class
+   - Completeness: All members of a class are assigned to the same cluster
+   - V-measure: Harmonic mean of homogeneity and completeness
+
+6. **Silhouette Score**:
+   - Measures cluster separation quality in embedding space
+   - Range: [-1, 1], higher is better
+   - Computed using cosine distance for high-dimensional embeddings
+
+#### 2.4.3 Statistical Analysis
+
+**Bootstrapped confidence intervals** (1,000 bootstrap samples):
+- Resample sequences with replacement
+- Recompute all metrics for each bootstrap sample
+- Report 95% CI (2.5th and 97.5th percentiles)
+- Provides uncertainty estimates for all reported metrics
+
+**Permutation tests** (10,000 permutations):
+- Null hypothesis: No difference between two clustering methods
+- Randomly permute cluster assignments between methods
+- Compare observed difference to permutation distribution
+- Report two-tailed p-values and effect sizes (Cohen's d)
+- Used for key comparisons: domain vs full-length, last vs mid-layers
+
+**Effect size** (Cohen's d):
+\[
+d = \frac{\text{Observed Difference}}{\text{Pooled SD}}
+\]
+
+Interpretation: |d| < 0.2 (small), 0.2-0.5 (medium), 0.5-0.8 (large), >0.8 (very large)
+
+#### 2.4.4 Ablation Studies
+
+**Domain extraction ablations**:
+1. Full-length sequences (mean 516 aa)
+2. Domain-only (HMMER PF00069, E=0.001, mean 258 aa)
+3. Domain with ±0 padding (exact envelope boundaries)
+4. Domain with ±10 padding (conservative extension)
+5. Domain with ±20 padding (maximal context)
+
+**E-value threshold ablations** (PF00069):
+1. E=1e-5 (very stringent, high precision, low coverage)
+2. E=1e-3 (stringent, balanced, **default**)
+3. E=0.01 (relaxed, higher coverage)
+4. E=0.1 (permissive, maximum coverage)
+
+**Layer selection ablations**:
+1. Layer 33 only (final layer, standard practice)
+2. Layers 20-30 (mid-to-late range)
+3. Layers 20-33 (mid-to-final, **best performance**)
+4. All layers 1-33 (full model average)
+
+**Pooling strategy ablations**:
+1. Mean pooling over residues (default, **best**)
+2. CLS token only (sequence summary)
+3. Max pooling over residues
+4. Attention-weighted pooling (learned attention)
+
+All ablations compared using permutation tests with Bonferroni correction for multiple comparisons.
+
+#### 2.4.5 Outlier Analysis
+
+**Cluster-flipping sequences**: Sequences that change cluster assignments between conditions
+- Identified by comparing cluster IDs across ablations
+- Top 50 flippers reported with flip patterns (e.g., cluster 3→7)
+- Manual inspection for: atypical sequences, domain extraction artifacts, low motif integrity
+- Flip frequency analyzed to identify systematic patterns vs random noise
 
 ### 2.5 Supervised Classification
 
