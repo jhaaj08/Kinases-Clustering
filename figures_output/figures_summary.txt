@@ -1,0 +1,77 @@
+================================================================================
+MANUSCRIPT FIGURES SUMMARY
+================================================================================
+
+Output Directory: /Users/ajikumar/codefiles/Kinases-Clustering/figures_output
+
+Generated Figures:
+
+
+FIGURE1:
+  - figure1_layer_comparison.pdf                       (  0.03 MB)
+  - figure1_layer_comparison.png                       (  0.20 MB)
+  - figure1_layer_comparison_data.csv                  (  0.00 MB)
+
+FIGURE2:
+  - figure2_calibration.pdf                            (  0.03 MB)
+  - figure2_calibration.png                            (  0.30 MB)
+  - figure2_calibration_data.csv                       (  0.00 MB)
+
+FIGURE3:
+  - figure3_retrieval.pdf                              (  0.03 MB)
+  - figure3_retrieval.png                              (  0.20 MB)
+  - figure3_retrieval_data.csv                         (  0.00 MB)
+
+FIGURE4:
+  - figure4_confusion_matrix.pdf                       (  0.03 MB)
+  - figure4_confusion_matrix.png                       (  0.30 MB)
+  - figure4_confusion_matrix_data.csv                  (  0.00 MB)
+
+FIGURE5:
+  - figure5_multi_identity.pdf                         (  0.03 MB)
+  - figure5_multi_identity.png                         (  0.24 MB)
+  - figure5_multi_identity_data.csv                    (  0.00 MB)
+
+FIGURE6:
+  - figure6_pooling.pdf                                (  0.03 MB)
+  - figure6_pooling.png                                (  0.14 MB)
+  - figure6_pooling_data.csv                           (  0.00 MB)
+
+================================================================================
+FIGURE DESCRIPTIONS
+================================================================================
+
+Figure 1: Layer Selection Strategy Comparison
+  Description: Bar chart showing ARI scores for 4 layer configurations
+  Location: Section placement per manuscript plan
+
+Figure 2: Calibration Curves
+  Description: Reliability diagram before/after Platt scaling
+  Location: Section placement per manuscript plan
+
+Figure 3: Exemplar Retrieval Performance
+  Description: Bar chart of top-1, top-3, top-5 hit rates and MRR
+  Location: Section placement per manuscript plan
+
+Figure 4: Confusion Matrix
+  Description: 8x8 heatmap with per-class recall bars
+  Location: Section placement per manuscript plan
+
+Figure 5: Multi-Identity Performance Degradation
+  Description: Line plot showing performance across 70%/50%/40% thresholds
+  Location: Section placement per manuscript plan
+
+Figure 6: Pooling Strategy Comparison
+  Description: Bar chart comparing mean pooling vs CLS token
+  Location: Section placement per manuscript plan
+
+================================================================================
+QUALITY STANDARDS MET
+================================================================================
+
+✅ All figures: 300 dpi PNG + vector PDF
+✅ Publication-quality styling (seaborn-paper)
+✅ Colorblind-safe palettes
+✅ Clear annotations and labels
+✅ Underlying data saved as CSV
+✅ Consistent formatting across all figures
