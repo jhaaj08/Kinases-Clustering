@@ -1,0 +1,85 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation (not needed in container)
+docs/
+*.md
+!README.md
+
+# Test files
+tests/
+test_*.py
+
+# Logs
+logs/
+*.log
+webapp.log
+
+# Archive and legacy
+archive/
+legacy_scripts/
+
+# Results and figures (not needed in container)
+figures_output/
+results/
+clustering/
+clustering_statistics/
+exemplar_retrieval_results/
+supervised_results_calibrated/
+reports/
+
+# Zenodo package
+zenodo_package/
+
+# Config files not needed
+.env
+.env.*
+*.yaml
+*.yml
+!docker-compose.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Large embedding directories (keep only what's needed)
+kinases_embeddings/
+kinases_domains_embeddings/
+kinases_domains_e0.01_cls/
+kinases_domains_e0.01_layers_20_30/
+kinases_domains_e0.1_embeddings/
+
+# Keep only the required embedding directory
+!kinases_domains_e0.01_layers_mid/
+
