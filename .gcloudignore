@@ -1,0 +1,31 @@
+# This file controls what files are sent to Google Cloud Build.
+# It overrides .gitignore. Keep only what's needed for the build context.
+
+# VCS
+.git/
+.gitignore
+.gcloudignore
+
+# OS/IDE caches
+**/.DS_Store
+**/__pycache__/
+**/.ipynb_checkpoints/
+.idea/
+.vscode/
+
+# Large outputs not needed for the image
+figures_output/
+results/
+reports/
+logs/
+archive/
+zenodo_package/
+docs/
+scripts/
+figures/
+
+# Keep these artifacts in the build context
+!supervised_results/logistic_regression_model.joblib
+!kinases_domains_e0.01_layers_mid/esm2_embeddings.npy
+!data/processed/kinases_domains_e0.01.csv
+!data/hmm_profiles/PF00069.hmm
