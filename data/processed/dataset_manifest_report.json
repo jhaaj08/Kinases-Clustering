@@ -1,0 +1,109 @@
+{
+  "step": 6,
+  "name": "Dataset Manifest Creation",
+  "description": "Defines explicit experiment datasets with UniProt ID lists",
+  "policy": {
+    "label_column": "label_used_for_experiments",
+    "other_excluded": true,
+    "min_samples_per_class": 5
+  },
+  "datasets": {
+    "whole_seq_excl_other": {
+      "manifest_file": "data/manifests/whole_seq_excl_other.txt",
+      "description": "Full-length sequences excluding 'Other' class",
+      "n_sequences": 2911,
+      "n_classes": 10,
+      "per_class_counts": {
+        "TK": 1303,
+        "CMGC": 336,
+        "CAMK": 289,
+        "Histidine": 280,
+        "AGC": 212,
+        "Atypical": 192,
+        "STE": 143,
+        "TKL": 77,
+        "CK1": 55,
+        "RGC": 24
+      }
+    },
+    "domain_E0001": {
+      "manifest_file": "data/manifests/domain_E0001.txt",
+      "description": "Domain sequences (E-value < 0.001), excluding 'Other'",
+      "evalue_threshold": "0.001",
+      "n_sequences": 1379,
+      "n_classes": 10,
+      "per_class_counts": {
+        "TK": 488,
+        "CMGC": 240,
+        "CAMK": 221,
+        "AGC": 139,
+        "STE": 130,
+        "TKL": 63,
+        "CK1": 43,
+        "Atypical": 30,
+        "RGC": 18,
+        "Histidine": 7
+      }
+    },
+    "domain_E001": {
+      "manifest_file": "data/manifests/domain_E001.txt",
+      "description": "Domain sequences (E-value < 0.01), excluding 'Other' - MAIN ANALYSIS DATASET",
+      "evalue_threshold": "0.01",
+      "n_sequences": 1392,
+      "n_classes": 10,
+      "per_class_counts": {
+        "TK": 494,
+        "CMGC": 240,
+        "CAMK": 221,
+        "AGC": 139,
+        "STE": 130,
+        "TKL": 63,
+        "CK1": 43,
+        "Atypical": 37,
+        "RGC": 18,
+        "Histidine": 7
+      },
+      "is_main_dataset": true
+    },
+    "supervised_eligible": {
+      "manifest_file": "data/manifests/supervised_eligible.txt",
+      "description": "Sequences eligible for supervised learning (n >= 5 per class)",
+      "base_dataset": "domain_E001",
+      "min_samples_per_class": 5,
+      "n_sequences": 1367,
+      "n_classes": 8,
+      "per_class_counts": {
+        "TK": 494,
+        "CMGC": 240,
+        "CAMK": 221,
+        "AGC": 139,
+        "STE": 130,
+        "TKL": 63,
+        "CK1": 43,
+        "Atypical": 37
+      },
+      "excluded_classes": [
+        {
+          "class": "RGC",
+          "count": 18,
+          "reason": "Different catalytic mechanism/domain architecture"
+        },
+        {
+          "class": "Histidine",
+          "count": 7,
+          "reason": "Different catalytic mechanism/domain architecture"
+        }
+      ]
+    }
+  },
+  "table_1_counts": {
+    "whole_seq_total": 6465,
+    "whole_seq_n_other": 3554,
+    "whole_seq_n_non_other": 2911,
+    "whole_seq_excl_other_n": 2911,
+    "domain_E0001_n": 1379,
+    "domain_E001_n": 1392,
+    "supervised_eligible_n": 1367,
+    "supervised_n_classes": 8
+  }
+}

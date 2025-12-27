@@ -1,0 +1,13 @@
+{
+  "official_column": "label_used_for_experiments",
+  "description": "All analyses use 'label_used_for_experiments' column. This includes both original UniProt annotations and recovered labels.",
+  "label_recovery_policy": {
+    "method": "Protein name parsing and subfamily mapping were used to recover labels for sequences initially lacking kinome group annotations.",
+    "original_source": "Direct UniProt kinome_group field annotation",
+    "name_regex_source": "Regular expression matching on protein names (e.g., 'CAMK' in name -> CAMK group)",
+    "mapping_source": "Subfamily to major group hierarchical mapping"
+  },
+  "experiment_usage": "All clustering, supervised classification, and retrieval experiments use 'label_used_for_experiments' column exclusively.",
+  "version": "1.0",
+  "created_by": "scripts/assign_labels.py"
+}

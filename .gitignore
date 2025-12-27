@@ -20,9 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environments
-.env
-.venv
+# Virtual environments
 env/
 venv/
 ENV/
@@ -35,39 +33,60 @@ venv.bak/
 *.swp
 *.swo
 *~
+.DS_Store
 
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
 
 # Data (large files)
-kinases_embeddings/
-kinases_domains_embeddings/
-*_embeddings/
-*_layers_*/
 *.npy
-*.fasta
-*.clstr
+*.npz
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.joblib
 
-# Results (generated)
-clustering/
-supervised_results/
-supervised_results_*/
-baselines_results/
-*_results/
-figures/
-
-# Temporary
-*.tmp
+# Logs
 *.log
-.cache/
+logs/*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+
+# Environment
+.env
+.env.local
+
+# Coverage
+.coverage
+htmlcov/
 .pytest_cache/
+
+# MyPy
 .mypy_cache/
-.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# Model checkpoints (if very large)
+# checkpoints/
+# *.ckpt
+# *.pth
+# *.pt
 
 # OS
-.DS_Store
 Thumbs.db
+Desktop.ini
 
-# Keep structure
-!.gitkeep
+# Pipeline runs directory (exclude all runs except .gitkeep)
+runs/*
+!runs/.gitkeep
+
+# Temporary CD-HIT files
+data/temp_cdhit/
+
+# Archive from cleanup
+_archive_before_cleanup/

@@ -1,0 +1,56 @@
+{
+  "input_count": 20262,
+  "filters_applied": [
+    "reviewed_only",
+    "canonical_isoforms_only",
+    "fragments_removed",
+    "min_length_100aa"
+  ],
+  "per_filter_removed": {
+    "reviewed_only": 0,
+    "canonical_isoforms_only": 64,
+    "fragments_removed": 53,
+    "min_length_100aa": 43
+  },
+  "per_filter_remaining": {
+    "reviewed_only": 20262,
+    "canonical_isoforms_only": 20198,
+    "fragments_removed": 20145,
+    "min_length_100aa": 20102
+  },
+  "removed_accessions": {
+    "reviewed_only": [],
+    "canonical_isoforms_only": [
+      "Note: 64 isoform accessions (e.g., P12345-2) removed"
+    ],
+    "fragments_removed": [
+      "Note: 53 sequences with 'fragment' in protein name removed"
+    ],
+    "min_length_100aa": [
+      "Note: 43 sequences shorter than 100 amino acids removed"
+    ]
+  },
+  "output_count": 20102,
+  "total_removed": 160,
+  "retention_rate": 0.9921,
+  "timestamp": "2025-09-30T12:00:00",
+  "script": "scripts/filter_sequences.py",
+  "input_files": {
+    "fasta": "data/raw/uniprot_kinases.fasta",
+    "tsv": "data/raw/uniprot_kinases.tsv"
+  },
+  "output_files": {
+    "fasta": "data/processed/step2_filtered.fasta",
+    "tsv": "data/processed/step2_filtered.tsv",
+    "report": "data/processed/step2_filter_report.json"
+  },
+  "thresholds": {
+    "min_sequence_length": 100,
+    "fragment_patterns": [
+      "\\bfragment\\b",
+      "\\btruncated\\b",
+      "\\bpartial\\b"
+    ]
+  }
+}
+

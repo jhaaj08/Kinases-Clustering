@@ -1,6 +1,0 @@
-comparison,metric,method1_value,method2_value,delta,ci_lower,ci_upper,p_value,cohens_d,endpoint_type
-Domain-only vs Full-length,ARI,0.268,0.071,0.197,0.185,0.209,0.0001,2.34,primary
-Layers 20-33 vs Layer 33,ARI,0.354,0.268,0.086,0.078,0.094,0.0001,1.87,primary
-Calibrated vs Uncalibrated (ECE),ECE,0.11,0.154,-0.044,-0.052,-0.036,0.006,-0.92,secondary
-ESM-2+LR vs k-NN,Macro-F1,0.668,0.542,0.126,0.098,0.154,0.002,1.12,primary
-70% vs 40% identity splits,Macro-F1,0.721,0.668,0.053,0.001,0.105,0.048,0.65,secondary

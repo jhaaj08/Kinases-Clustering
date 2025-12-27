@@ -1,0 +1,488 @@
+{
+  "generated": "2025-12-25T09:43:16.571270",
+  "generator": "scripts/generate_raw_manifest.py",
+  "purpose": "Zenodo upload and reproducibility verification",
+  "categories": {
+    "raw_data": {
+      "description": "Core raw data files from UniProt",
+      "files": [
+        {
+          "path": "data/raw/kinases_all.csv",
+          "exists": true,
+          "size_bytes": 18432922,
+          "size_human": "17.6 MB",
+          "lines": 20263,
+          "sha256": "7a7016fd6afd584d6d46b0141828f15061aac9df4e161448991b0050dd621f01",
+          "modified": "2025-09-30T17:39:35.017586",
+          "status": "OK"
+        },
+        {
+          "path": "data/raw/kinases_revised.csv",
+          "exists": true,
+          "size_bytes": 6603762,
+          "size_human": "6.3 MB",
+          "lines": 6466,
+          "sha256": "b0abdc9aafeb12c3b11661ed2628b70daf68c7eeffdbb2df3f57e1440bcee619",
+          "modified": "2025-09-30T17:21:45.542268",
+          "status": "OK"
+        },
+        {
+          "path": "data/raw/uniprot_query.txt",
+          "exists": true,
+          "size_bytes": 180,
+          "size_human": "180.0 B",
+          "lines": 6,
+          "sha256": "4bb81586e2a33955f382dc21832e2fba95c7a65499c136cd352a76122a373a23",
+          "modified": "2025-12-23T15:58:44.858762",
+          "status": "OK"
+        },
+        {
+          "path": "data/raw/uniprot_release.txt",
+          "exists": true,
+          "size_bytes": 309,
+          "size_human": "309.0 B",
+          "lines": 12,
+          "sha256": "df59f28f87af6f337a191b55ff49e9bb965d99879f33989a030520ad4ff47eae",
+          "modified": "2025-12-23T15:58:44.858750",
+          "status": "OK"
+        }
+      ]
+    },
+    "processed_key": {
+      "description": "Key processed files for analysis",
+      "files": [
+        {
+          "path": "data/processed/labels.csv",
+          "exists": true,
+          "size_bytes": 186180,
+          "size_human": "181.8 KB",
+          "lines": 6466,
+          "sha256": "ca4e7f37adbc7aebcc38cfc0ff063b5eade4a7a518d0c97a9768b6bf3dd3eeaa",
+          "modified": "2025-12-23T16:17:43.180665",
+          "status": "OK"
+        },
+        {
+          "path": "data/processed/label_policy.json",
+          "exists": true,
+          "size_bytes": 839,
+          "size_human": "839.0 B",
+          "lines": 13,
+          "sha256": "de346361a66c9b3950d09d4c1f8cbc60b8800e9ca3e7ba5633c62c0567ba9271",
+          "modified": "2025-12-23T16:17:43.181226",
+          "status": "OK"
+        },
+        {
+          "path": "data/processed/dataset_manifest_report.json",
+          "exists": true,
+          "size_bytes": 2890,
+          "size_human": "2.8 KB",
+          "lines": 109,
+          "sha256": "839a3d3204b84bd9d60b8d6d9e0afa51e316179b5a7ed72a4cb465e366782432",
+          "modified": "2025-12-23T22:46:18.188492",
+          "status": "OK"
+        },
+        {
+          "path": "data/domains/domains_E001.fasta",
+          "exists": true,
+          "size_bytes": 555638,
+          "size_human": "542.6 KB",
+          "lines": 3918,
+          "sha256": "744288d88a340ddcaba82ae18582c0fac277a13ed8deaf0434110423c4ab41a3",
+          "modified": "2025-12-23T16:27:37.655027",
+          "status": "OK"
+        },
+        {
+          "path": "data/domains/domain_coords_E001.tsv",
+          "exists": true,
+          "size_bytes": 97934,
+          "size_human": "95.6 KB",
+          "lines": 1960,
+          "sha256": "b3b1d2f890c2ff80f68382aaee25aea364e7725a2157a06cf5818b5db15bd416",
+          "modified": "2025-12-23T16:27:37.653278",
+          "status": "OK"
+        },
+        {
+          "path": "data/domains/domain_extraction_report.json",
+          "exists": true,
+          "size_bytes": 1860,
+          "size_human": "1.8 KB",
+          "lines": 74,
+          "sha256": "0853fccceec1ea17b0e0167158cd7cc1d61c8990c879a87233088e650cc78d2a",
+          "modified": "2025-12-23T16:27:37.659658",
+          "status": "OK"
+        },
+        {
+          "path": "data/domains/hmmer_domtblout_E001.txt",
+          "exists": true,
+          "size_bytes": 791422,
+          "size_human": "772.9 KB",
+          "lines": 4329,
+          "sha256": "f0139dec6bc6ca53206d755c422d4689a0b42bba03be73c146efc373d4c7eece",
+          "modified": "2025-12-23T16:27:37.658184",
+          "status": "OK"
+        },
+        {
+          "path": "data/manifests/supervised_eligible.txt",
+          "exists": true,
+          "size_bytes": 9590,
+          "size_human": "9.4 KB",
+          "lines": 1362,
+          "sha256": "b90507e691817c3cc5ce0d4c69f2b2b8e345439da4002788c491391ce47f90cc",
+          "modified": "2025-12-25T09:38:34.286778",
+          "status": "OK"
+        },
+        {
+          "path": "data/manifests/domain_E001.txt",
+          "exists": true,
+          "size_bytes": 9773,
+          "size_human": "9.5 KB",
+          "lines": 1387,
+          "sha256": "4d85701befaa44382c176b9de8e9369aefaebc19cb34f52bc964b7107f992258",
+          "modified": "2025-12-25T09:38:34.286484",
+          "status": "OK"
+        },
+        {
+          "path": "data/splits/split40_train.txt",
+          "exists": true,
+          "size_bytes": 7659,
+          "size_human": "7.5 KB",
+          "lines": 1089,
+          "sha256": "d1daab3af0363136a7c1513bb24fa6ba5b9b8c60c827a4ccfb2992365dccb5d5",
+          "modified": "2025-12-25T09:41:14.596592",
+          "status": "OK"
+        },
+        {
+          "path": "data/splits/split40_test.txt",
+          "exists": true,
+          "size_bytes": 1931,
+          "size_human": "1.9 KB",
+          "lines": 273,
+          "sha256": "8bcdf77f0f383994ae7fc623233cac88b6c7cca24534f7110b40c92069f03568",
+          "modified": "2025-12-25T09:41:14.596915",
+          "status": "OK"
+        },
+        {
+          "path": "data/splits/split50_train.txt",
+          "exists": true,
+          "size_bytes": 7643,
+          "size_human": "7.5 KB",
+          "lines": 1085,
+          "sha256": "3a0fa5721c16181d2b02a44b90724dd8cd1392f2eee0199a3b676d501298e7c9",
+          "modified": "2025-12-25T09:41:13.756208",
+          "status": "OK"
+        },
+        {
+          "path": "data/splits/split50_test.txt",
+          "exists": true,
+          "size_bytes": 1947,
+          "size_human": "1.9 KB",
+          "lines": 277,
+          "sha256": "32d9ec3a678a2eaf7811ef833a69766ad53cbc1313f7d7a3b243e851454916ac",
+          "modified": "2025-12-25T09:41:13.756559",
+          "status": "OK"
+        },
+        {
+          "path": "data/splits/split70_train.txt",
+          "exists": true,
+          "size_bytes": 7674,
+          "size_human": "7.5 KB",
+          "lines": 1090,
+          "sha256": "db95992ebc22489326c4c583b82c60cacc779b884f66c944579c2deb21c9178a",
+          "modified": "2025-12-25T09:41:13.416867",
+          "status": "OK"
+        },
+        {
+          "path": "data/splits/split70_test.txt",
+          "exists": true,
+          "size_bytes": 1916,
+          "size_human": "1.9 KB",
+          "lines": 272,
+          "sha256": "e53aa9431e08dd661dff13ecdd57c7d28c45807ebb3a33ded3ddcbab4e7b13fc",
+          "modified": "2025-12-25T09:41:13.417195",
+          "status": "OK"
+        },
+        {
+          "path": "data/splits/splits_report.json",
+          "exists": true,
+          "size_bytes": 2309,
+          "size_human": "2.3 KB",
+          "lines": 102,
+          "sha256": "2febfe53853591356d6bea597aeb77bc26bac6da504bc4717ac421f4e86cf15d",
+          "modified": "2025-12-25T09:41:14.597138",
+          "status": "OK"
+        }
+      ]
+    },
+    "hmm_profiles": {
+      "description": "Pfam HMM profiles for domain extraction",
+      "files": [
+        {
+          "path": "data/hmm_profiles/PF00069.hmm",
+          "exists": true,
+          "size_bytes": 123491,
+          "size_human": "120.6 KB",
+          "lines": 818,
+          "sha256": "6ab6ceaa2b7f6c1ea4052ef430d9ff56195d45b23e5af11471a0c1d5984e1cbb",
+          "modified": "2025-10-01T14:19:35.562949",
+          "status": "OK"
+        },
+        {
+          "path": "data/hmm_profiles/PF07714.hmm",
+          "exists": true,
+          "size_bytes": 121193,
+          "size_human": "118.4 KB",
+          "lines": 803,
+          "sha256": "5e6bedd1d1b180baddffbe950a1b6c32bc75ebb9820d471f00835f7cc74e07df",
+          "modified": "2025-10-01T14:19:36.415218",
+          "status": "OK"
+        }
+      ]
+    },
+    "results_registries": {
+      "description": "Results registries (SOURCE OF TRUTH)",
+      "files": [
+        {
+          "path": "results/manuscript_numbers.json",
+          "exists": true,
+          "size_bytes": 4317,
+          "size_human": "4.2 KB",
+          "lines": 113,
+          "sha256": "6a17b600bdb6facd26ff3d337919a0a3bd0b5a6b8a9ea47110f15433eabb8616",
+          "modified": "2025-12-25T09:43:11.768198",
+          "status": "OK"
+        },
+        {
+          "path": "results/tables/Table1.csv",
+          "exists": true,
+          "size_bytes": 397,
+          "size_human": "397.0 B",
+          "lines": 8,
+          "sha256": "05ca0dc52a2dd489548ae820aa3216dd282b1b447ff83a6f7f060683ce0b75b0",
+          "modified": "2025-12-25T09:43:11.769172",
+          "status": "OK"
+        },
+        {
+          "path": "results/tables/TableS1.csv",
+          "exists": true,
+          "size_bytes": 400,
+          "size_human": "400.0 B",
+          "lines": 5,
+          "sha256": "f88aef60c3f871ae3ad1ae679bf99b76cb9dc5f1f73672adff52b91865d7ee93",
+          "modified": "2025-12-25T09:43:11.769558",
+          "status": "OK"
+        },
+        {
+          "path": "results/tables/TableS2.csv",
+          "exists": true,
+          "size_bytes": 327,
+          "size_human": "327.0 B",
+          "lines": 6,
+          "sha256": "481cbe31fc2ddfa8b551c4974d651d7826f95593904349fe06ab3ac72a29e694",
+          "modified": "2025-12-25T09:43:11.770457",
+          "status": "OK"
+        },
+        {
+          "path": "results/clustering/clustering_registry.json",
+          "exists": true,
+          "size_bytes": 2024,
+          "size_human": "2.0 KB",
+          "lines": 97,
+          "sha256": "66a52eac29b4492455ad9c2049160b62f29ac7022530562c72b5780f0534b605",
+          "modified": "2025-12-25T09:43:06.810990",
+          "status": "OK"
+        },
+        {
+          "path": "results/clustering/summary_table.csv",
+          "exists": true,
+          "size_bytes": 350,
+          "size_human": "350.0 B",
+          "lines": 5,
+          "sha256": "bacf1cb0fbc62157c7c292f74b138cea950491d599b06c48a416265218da6dec",
+          "modified": "2025-12-25T09:42:12.407741",
+          "status": "OK"
+        },
+        {
+          "path": "results/supervised/lr_split40_metrics.json",
+          "exists": true,
+          "size_bytes": 2142,
+          "size_human": "2.1 KB",
+          "lines": 115,
+          "sha256": "2cff6ce978723c47d3d5b463264239abd45d9080c00958f8c5bc7e4621152909",
+          "modified": "2025-12-23T22:46:35.925352",
+          "status": "OK"
+        },
+        {
+          "path": "results/supervised/lr_split50_metrics.json",
+          "exists": true,
+          "size_bytes": 2145,
+          "size_human": "2.1 KB",
+          "lines": 115,
+          "sha256": "9ceb052cb961f5d4d7d7db8e2a9d45d49f357556259eb7a9f6eb135d06d61a40",
+          "modified": "2025-12-23T22:46:36.793144",
+          "status": "OK"
+        },
+        {
+          "path": "results/supervised/lr_split70_metrics.json",
+          "exists": true,
+          "size_bytes": 2147,
+          "size_human": "2.1 KB",
+          "lines": 115,
+          "sha256": "a8e85a5032934196b274c5f38e2c722bfd39fcbde4f9ed57b077c6a04b66207b",
+          "modified": "2025-12-23T22:46:37.660763",
+          "status": "OK"
+        },
+        {
+          "path": "results/supervised/lr_multi_identity_summary.csv",
+          "exists": true,
+          "size_bytes": 477,
+          "size_human": "477.0 B",
+          "lines": 4,
+          "sha256": "c677159eb473edb22c2d4939d50cb89aaf7393e3274672359fb40c16585bc15d",
+          "modified": "2025-12-23T22:46:37.661379",
+          "status": "OK"
+        },
+        {
+          "path": "results/supervised/supervised_registry.json",
+          "exists": true,
+          "size_bytes": 1528,
+          "size_human": "1.5 KB",
+          "lines": 48,
+          "sha256": "26984762b21082e3d51815a8ef1049cad5312236c51bfa5a8a09b834c6a683c0",
+          "modified": "2025-12-23T18:16:02.936291",
+          "status": "OK"
+        },
+        {
+          "path": "results/calibration/split40_calibration.json",
+          "exists": true,
+          "size_bytes": 6956,
+          "size_human": "6.8 KB",
+          "lines": 252,
+          "sha256": "a40f6a5f68120470a52c2371187ae1d411a67f798d8a21d2f14fa6f9e633ea23",
+          "modified": "2025-12-23T22:46:48.369857",
+          "status": "OK"
+        },
+        {
+          "path": "results/baselines/baselines_split40.csv",
+          "exists": true,
+          "size_bytes": 505,
+          "size_human": "505.0 B",
+          "lines": 6,
+          "sha256": "4522d9eb1cd9cfc2afef6cb43ef0e203c90356bb7ccc7262b64d2f9021cfeecf",
+          "modified": "2025-12-23T22:46:56.105282",
+          "status": "OK"
+        },
+        {
+          "path": "results/baselines/knn_split40.json",
+          "exists": true,
+          "size_bytes": 547,
+          "size_human": "547.0 B",
+          "lines": 20,
+          "sha256": "2a77d8477be5e59f435d508ab538e88203a05e3a28f65fe55563f3a41518c839",
+          "modified": "2025-12-23T22:46:55.806659",
+          "status": "OK"
+        },
+        {
+          "path": "results/baselines/mlp_split40.json",
+          "exists": true,
+          "size_bytes": 608,
+          "size_human": "608.0 B",
+          "lines": 24,
+          "sha256": "ac56688230b8fd2c8c58c900df95ce84d101a2d1faccea6b1eec2a6d4bd2f133",
+          "modified": "2025-12-23T22:46:56.099459",
+          "status": "OK"
+        },
+        {
+          "path": "results/baselines/motifs_split40.json",
+          "exists": true,
+          "size_bytes": 1271,
+          "size_human": "1.2 KB",
+          "lines": 21,
+          "sha256": "ebdb4fa2c48d2503876d96ad50258480213c17671fb83784b24fdc9b87e6be3b",
+          "modified": "2025-12-23T22:46:55.825048",
+          "status": "OK"
+        },
+        {
+          "path": "results/baselines/random_split40.json",
+          "exists": true,
+          "size_bytes": 555,
+          "size_human": "555.0 B",
+          "lines": 19,
+          "sha256": "0f352fe066c4a457cb5c5d3ac807ee4904902e19f46b1d8199b685e6667de070",
+          "modified": "2025-12-23T22:46:56.103848",
+          "status": "OK"
+        },
+        {
+          "path": "results/retrieval/split40_retrieval.json",
+          "exists": true,
+          "size_bytes": 217155,
+          "size_human": "212.1 KB",
+          "lines": 10970,
+          "sha256": "48837e07965b0f29cde03c203106242027fbb5358be64d7bcd99a696b05f92aa",
+          "modified": "2025-12-23T22:47:02.507510",
+          "status": "OK"
+        },
+        {
+          "path": "results/retrieval/summary.csv",
+          "exists": true,
+          "size_bytes": 203,
+          "size_human": "203.0 B",
+          "lines": 9,
+          "sha256": "8f26afdc3ecf380ad3bb81b9b06497f90d43c88f743b0327e06b27356edccbbd",
+          "modified": "2025-12-23T22:47:02.508368",
+          "status": "OK"
+        },
+        {
+          "path": "results/layer_comparison/layer_comparison_results.json",
+          "exists": true,
+          "size_bytes": 3516,
+          "size_human": "3.4 KB",
+          "lines": 134,
+          "sha256": "01801c9c9c37198817c315f0b4def10f85e3e41850adba90b3be412e564bccd6",
+          "modified": "2025-12-25T09:41:43.462844",
+          "status": "OK"
+        },
+        {
+          "path": "results/layer_comparison/layer_comparison_summary.csv",
+          "exists": true,
+          "size_bytes": 1435,
+          "size_human": "1.4 KB",
+          "lines": 13,
+          "sha256": "250b81ac952c027c5ed8f3a2b11581c30806b0a47ef9008e111b4e0ca25b93e6",
+          "modified": "2025-12-25T09:41:43.463941",
+          "status": "OK"
+        }
+      ]
+    },
+    "embeddings_meta": {
+      "description": "Embedding metadata and IDs",
+      "files": [
+        {
+          "path": "embeddings/esm2_t33_650M/embedding_metadata.json",
+          "exists": true,
+          "size_bytes": 3427,
+          "size_human": "3.3 KB",
+          "lines": 160,
+          "sha256": "a761baf17eff94041d4ef2a753ca936e9b86d2d61fdd4191919632a412ac678b",
+          "modified": "2025-12-24T14:19:23.670714",
+          "status": "OK"
+        },
+        {
+          "path": "embeddings/esm2_t33_650M/ids.txt",
+          "exists": true,
+          "size_bytes": 13789,
+          "size_human": "13.5 KB",
+          "lines": 1959,
+          "sha256": "69e57b2edc8df2e647a05e2c1cf422e65861d9bd95d1abdb51fc8cc42936945e",
+          "modified": "2025-12-25T09:37:08.438496",
+          "status": "OK"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_files": 45,
+    "missing_files": 0,
+    "total_size_bytes": 27235283,
+    "total_size_human": "26.0 MB"
+  }
+}

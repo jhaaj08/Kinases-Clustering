@@ -1,6 +1,0 @@
-Model: esm2_t33_650M_UR50D
-Layers: 33 -> [33]
-Pooling: cls
-Shape: (1968, 1280)
-Max length: 1022
-Stride: 900

@@ -1,0 +1,74 @@
+{
+  "step": 7,
+  "name": "Domain Extraction",
+  "timestamp": "2025-12-23T16:27:37.615190",
+  "tools": {
+    "hmmer": "# HMMER 3.4 (Aug 2023); http://hmmer.org/",
+    "pfam_profiles": {
+      "PF00069": "Pkinase",
+      "PF07714": "Pkinase_Tyr"
+    },
+    "pfam_versions": {
+      "PF00069": "PF00069.31",
+      "PF07714": "PF07714.23"
+    }
+  },
+  "parameters": {
+    "extraction_rule": "envelope coordinates (env_from, env_to)",
+    "selection_rule": "best-scoring domain per protein (highest bitscore)",
+    "e_value_thresholds": [
+      0.001,
+      0.01
+    ]
+  },
+  "results": {
+    "E0001": {
+      "e_value_threshold": 0.001,
+      "n_domains_extracted": 1942,
+      "n_unique_proteins": 1942,
+      "mean_domain_length": 258.6740473738414,
+      "class_distribution": {
+        "Other": 568,
+        "TK": 485,
+        "CMGC": 240,
+        "CAMK": 221,
+        "AGC": 139,
+        "STE": 130,
+        "TKL": 63,
+        "CK1": 43,
+        "Atypical": 28,
+        "RGC": 18,
+        "Histidine": 7
+      },
+      "files": {
+        "domtblout": "data/domains/hmmer_domtblout_E0001.txt",
+        "fasta": "data/domains/domains_E0001.fasta",
+        "coords_tsv": "data/domains/domain_coords_E0001.tsv"
+      }
+    },
+    "E001": {
+      "e_value_threshold": 0.01,
+      "n_domains_extracted": 1959,
+      "n_unique_proteins": 1959,
+      "mean_domain_length": 258.906584992343,
+      "class_distribution": {
+        "Other": 572,
+        "TK": 490,
+        "CMGC": 240,
+        "CAMK": 221,
+        "AGC": 139,
+        "STE": 130,
+        "TKL": 63,
+        "CK1": 43,
+        "Atypical": 36,
+        "RGC": 18,
+        "Histidine": 7
+      },
+      "files": {
+        "domtblout": "data/domains/hmmer_domtblout_E001.txt",
+        "fasta": "data/domains/domains_E001.fasta",
+        "coords_tsv": "data/domains/domain_coords_E001.tsv"
+      }
+    }
+  }
+}

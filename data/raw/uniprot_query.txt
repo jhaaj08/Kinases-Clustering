@@ -1,0 +1,6 @@
+# UniProt Query String
+# This is the exact query used to download kinase sequences
+# Do not modify - used for reproducibility
+
+reviewed:true AND (keyword:KW-0418 OR name:kinase*)
+

@@ -1,0 +1,102 @@
+{
+  "step": 10,
+  "name": "Homology-aware Supervised Splits (Regenerated)",
+  "timestamp": "2025-12-25T09:41:12.826115",
+  "method": {
+    "algorithm": "CD-HIT clustering then cluster-group split",
+    "description": "Sequences clustered at identity threshold. Clusters split into train/test.",
+    "guarantee": "No cluster spans train/test - prevents homology leakage",
+    "test_ratio": 0.2,
+    "random_state": 42
+  },
+  "supervised_eligible_n": 1362,
+  "splits": {
+    "split70": {
+      "identity_threshold": 70,
+      "n_clusters": 1097,
+      "n_train": 1090,
+      "n_test": 272,
+      "n_total": 1362,
+      "train_test_ratio": 0.8,
+      "train_class_distribution": {
+        "TKL": 54,
+        "TK": 391,
+        "Atypical": 28,
+        "CAMK": 181,
+        "CMGC": 190,
+        "AGC": 110,
+        "STE": 103,
+        "CK1": 33
+      },
+      "test_class_distribution": {
+        "CMGC": 50,
+        "STE": 27,
+        "TKL": 9,
+        "TK": 99,
+        "CAMK": 40,
+        "AGC": 29,
+        "Atypical": 8,
+        "CK1": 10
+      },
+      "is_disjoint": true
+    },
+    "split50": {
+      "identity_threshold": 50,
+      "n_clusters": 675,
+      "n_train": 1085,
+      "n_test": 277,
+      "n_total": 1362,
+      "train_test_ratio": 0.797,
+      "train_class_distribution": {
+        "AGC": 113,
+        "TK": 381,
+        "CMGC": 196,
+        "STE": 112,
+        "TKL": 51,
+        "Atypical": 31,
+        "CAMK": 160,
+        "CK1": 41
+      },
+      "test_class_distribution": {
+        "AGC": 26,
+        "CAMK": 61,
+        "TK": 109,
+        "Atypical": 5,
+        "CMGC": 44,
+        "STE": 18,
+        "TKL": 12,
+        "CK1": 2
+      },
+      "is_disjoint": true
+    },
+    "split40": {
+      "identity_threshold": 40,
+      "n_clusters": 405,
+      "n_train": 1089,
+      "n_test": 273,
+      "n_total": 1362,
+      "train_test_ratio": 0.8,
+      "train_class_distribution": {
+        "STE": 87,
+        "CMGC": 174,
+        "TK": 403,
+        "CAMK": 188,
+        "AGC": 119,
+        "CK1": 39,
+        "Atypical": 31,
+        "TKL": 48
+      },
+      "test_class_distribution": {
+        "TK": 87,
+        "TKL": 15,
+        "CAMK": 33,
+        "CMGC": 66,
+        "AGC": 20,
+        "STE": 43,
+        "Atypical": 5,
+        "CK1": 4
+      },
+      "is_disjoint": true
+    }
+  }
+}

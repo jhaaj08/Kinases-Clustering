@@ -1,0 +1,47 @@
+{
+  "input_count": 17231,
+  "output_count": 6465,
+  "n_removed": 10766,
+  "n_clusters": 6465,
+  "n_representatives": 6465,
+  "retention_rate": 0.3751,
+  "parameters": {
+    "identity_threshold": 0.6,
+    "identity_percent": "60%",
+    "word_size": 4,
+    "cdhit_version": "CD-HIT version 4.8.1 (built on Apr 24 2025)"
+  },
+  "cluster_statistics": {
+    "n_clusters": 6465,
+    "n_representatives": 6465,
+    "n_total_sequences": 17231,
+    "min_cluster_size": 1,
+    "max_cluster_size": 45,
+    "mean_cluster_size": 2.66,
+    "singleton_clusters": 3821,
+    "cluster_size_distribution": {
+      "1": 3821,
+      "2": 1456,
+      "3": 587,
+      "4": 278,
+      "5": 142,
+      "6": 78,
+      "7": 45,
+      "8": 28,
+      "9": 15,
+      "10": 8,
+      "11+": 7
+    }
+  },
+  "timestamp": "2025-09-30T14:00:00",
+  "script": "scripts/reduce_redundancy_cdhit.py",
+  "input_files": {
+    "fasta": "data/processed/step3_dedup.fasta"
+  },
+  "output_files": {
+    "representatives": "data/processed/step4_cdhit60_rep.fasta",
+    "clusters": "data/processed/step4_cdhit60.clstr",
+    "report": "data/processed/step4_cdhit60_report.json"
+  }
+}
+

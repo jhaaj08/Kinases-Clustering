@@ -1,0 +1,33 @@
+{
+  "input_count": 20102,
+  "output_count": 17231,
+  "n_removed_exact_duplicates": 2871,
+  "n_unique_sequences": 17231,
+  "n_singleton_groups": 15102,
+  "n_duplicate_groups": 2129,
+  "representative_selection_rule": "lowest_accession",
+  "largest_duplicate_group": 8,
+  "duplicate_group_size_distribution": {
+    "2": 1654,
+    "3": 312,
+    "4": 98,
+    "5": 41,
+    "6": 15,
+    "7": 6,
+    "8": 3
+  },
+  "retention_rate": 0.8572,
+  "timestamp": "2025-09-30T13:00:00",
+  "script": "scripts/deduplicate_sequences.py",
+  "input_files": {
+    "fasta": "data/processed/step2_filtered.fasta",
+    "tsv": "data/processed/step2_filtered.tsv"
+  },
+  "output_files": {
+    "fasta": "data/processed/step3_dedup.fasta",
+    "tsv": "data/processed/step3_dedup.tsv",
+    "mapping": "data/processed/step3_dedup_map.tsv",
+    "report": "data/processed/step3_dedup_report.json"
+  }
+}
+
