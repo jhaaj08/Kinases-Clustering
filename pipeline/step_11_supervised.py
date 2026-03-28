@@ -22,7 +22,7 @@ from datetime import datetime
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score, f1_score, precision_score, recall_score,
-    log_loss, classification_report
+    log_loss, classification_report, confusion_matrix
 )
 import joblib
 
@@ -136,7 +136,8 @@ def main():
                 max_iter=1000,
                 random_state=RANDOM_STATE,
                 multi_class='multinomial',
-                solver='lbfgs'
+                solver='lbfgs',
+                class_weight='balanced'
             )
             model.fit(X_train, train_labels)
             
@@ -161,6 +162,19 @@ def main():
             if threshold == 40:
                 model_file = results_dir / f"lr_{split_name}_{config_name}.joblib"
                 joblib.dump(model, model_file)
+
+                # Save confusion matrix data for Figure 2
+                cm = confusion_matrix(test_labels, y_pred, labels=classes)
+                confusion_file = results_dir / f"lr_{split_name}_confusion_{config_name}.json"
+                with open(confusion_file, 'w') as f:
+                    json.dump({
+                        "config": config_name,
+                        "split": split_name,
+                        "classes": classes,
+                        "true_labels": list(test_labels),
+                        "pred_labels": list(y_pred),
+                        "confusion_matrix": cm.tolist()
+                    }, f, indent=2)
         
         # Save split metrics
         metrics_file = results_dir / f"lr_{split_name}_metrics.json"

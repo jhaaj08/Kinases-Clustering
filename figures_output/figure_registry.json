@@ -1,0 +1,41 @@
+{
+  "step": 16,
+  "name": "Figure Generation",
+  "timestamp": "2026-03-28T22:46:23.576550",
+  "output_dirs": [
+    "runs/review_run/figures",
+    "/Users/ajikumar/codefiles/Kinases-Clustering/figures_output"
+  ],
+  "figures": {
+    "Figure1_clustering_ari.png": {
+      "title": "Clustering Performance (ARI) Across ESM-2 Layer Configurations",
+      "cited_in": "Results \u00a73.1",
+      "source": "results/clustering/clustering_registry.json"
+    },
+    "Figure2_confusion_matrix.png": {
+      "title": "Confusion Matrix \u2014 Supervised Classification (Layer 33, split40)",
+      "cited_in": "Results \u00a73.2",
+      "source": "results/supervised/lr_split40_confusion_layer33_mean.json"
+    },
+    "Figure3_homology_classification.png": {
+      "title": "Classification Accuracy Across Homology Identity Thresholds",
+      "cited_in": "Results \u00a73.3",
+      "source": "results/calibration/split40_calibration_*.json"
+    },
+    "Figure4_pooling_comparison.png": {
+      "title": "Effect of Pooling Strategy on Clustering and Classification",
+      "cited_in": "Results \u00a73.4",
+      "source": "results/clustering/clustering_registry.json + calibration"
+    },
+    "Figure5_calibration.png": {
+      "title": "Calibration Before and After Platt Scaling",
+      "cited_in": "Results \u00a73.5",
+      "source": "results/calibration/split40_calibration_layer33_mean.json"
+    },
+    "Figure6_retrieval_pr.png": {
+      "title": "Exemplar-Based Retrieval: Precision-Recall at Cosine Similarity Thresholds",
+      "cited_in": "Results \u00a73.6",
+      "source": "results/retrieval/split40_pr_curve.json"
+    }
+  }
+}

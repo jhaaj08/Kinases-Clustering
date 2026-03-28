@@ -141,12 +141,52 @@ def main():
     print("\nComputing retrieval metrics...")
     k_values = [1, 3, 5, 10]
     metrics = compute_retrieval_metrics(X_train, X_test, train_labels, test_labels, k_values)
-    
+
     for k in k_values:
         print(f"  P@{k}: {metrics[f'P@{k}']:.4f}")
     print(f"  MRR: {metrics['MRR']:.4f}")
-    
-    # Create report
+
+    # Compute precision-recall curve at cosine-similarity thresholds (for Figure 6)
+    print("\nComputing precision-recall curve at similarity thresholds...")
+    from sklearn.metrics.pairwise import cosine_similarity as cos_sim
+    sim_matrix = cos_sim(X_test, X_train)  # (n_test, n_train)
+
+    thresholds = np.linspace(0.5, 1.0, 100).tolist()
+    pr_precisions = []
+    pr_recalls = []
+
+    for thresh in thresholds:
+        tp = fp = fn = 0
+        for i, true_label in enumerate(test_labels):
+            sims = sim_matrix[i]
+            retrieved = np.where(sims >= thresh)[0]
+            if len(retrieved) == 0:
+                fn += 1  # nothing retrieved → missed
+                continue
+            ret_labels = [train_labels[j] for j in retrieved]
+            tp += sum(1 for l in ret_labels if l == true_label)
+            fp += sum(1 for l in ret_labels if l != true_label)
+            if true_label not in ret_labels:
+                fn += 1
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 1.0
+        recall    = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        pr_precisions.append(float(precision))
+        pr_recalls.append(float(recall))
+
+    pr_curve_file = results_dir / f"{split_name}_pr_curve.json"
+    with open(pr_curve_file, 'w') as f:
+        json.dump({
+            "split": split_name,
+            "thresholds": thresholds,
+            "precision": pr_precisions,
+            "recall": pr_recalls,
+            "p_at_1": float(metrics["P@1"]),
+            "p_at_3": float(metrics["P@3"]),
+            "mrr":    float(metrics["MRR"])
+        }, f, indent=2)
+    print(f"✓ Saved: {pr_curve_file.name}")
+
+    # Create main report
     report = {
         "step": 14,
         "name": "Retrieval Experiment",
@@ -158,18 +198,18 @@ def main():
         "n_excluded_test": len(excluded_test),
         "metrics": {k: float(v) for k, v in metrics.items()}
     }
-    
+
     report_file = results_dir / f"{split_name}_retrieval.json"
     with open(report_file, 'w') as f:
         json.dump(report, f, indent=2)
-    print(f"\n✓ Saved: {report_file}")
-    
-    # Save summary
+    print(f"✓ Saved: {report_file.name}")
+
+    # Save summary CSV
     summary_data = [{"Metric": k, "Value": f"{v:.4f}"} for k, v in metrics.items()]
     summary_df = pd.DataFrame(summary_data)
     summary_file = results_dir / "summary.csv"
     summary_df.to_csv(summary_file, index=False)
-    print(f"✓ Saved: {summary_file}")
+    print(f"✓ Saved: {summary_file.name}")
     
     print("\n" + "=" * 60)
     print("Step 14 COMPLETE")

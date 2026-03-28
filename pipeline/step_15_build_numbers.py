@@ -125,19 +125,63 @@ def main():
                 numbers["supervised"][split_name][config_name] = config_data["metrics"]
         print(f"  ✓ Supervised: {len(numbers['supervised'])} splits")
     
-    # 5. Calibration numbers
+    # 5. Calibration numbers (load per-config files; fall back to compat file)
     print("\n5. Loading calibration numbers...")
-    calibration = load_json_safe(results_dir / "calibration" / "split40_calibration.json")
-    if calibration:
-        numbers["calibration"] = {
-            "uncalibrated_accuracy": calibration["uncalibrated"]["accuracy"],
-            "uncalibrated_log_loss": calibration["uncalibrated"]["log_loss"],
-            "uncalibrated_ece": calibration["uncalibrated"]["ece"],
-            "calibrated_accuracy": calibration["calibrated"]["accuracy"],
-            "calibrated_log_loss": calibration["calibrated"]["log_loss"],
-            "calibrated_ece": calibration["calibrated"]["ece"]
-        }
-        print(f"  ✓ Calibration: accuracy {numbers['calibration']['calibrated_accuracy']:.4f}")
+    cal_configs = {
+        "layer33_mean":    results_dir / "calibration" / "split40_calibration_layer33_mean.json",
+        "layers20_30_mean": results_dir / "calibration" / "split40_calibration_layers20_30_mean.json",
+    }
+    calibration_by_config = {}
+    for cfg, cal_path in cal_configs.items():
+        cal = load_json_safe(cal_path)
+        if cal is None:
+            # Fall back to old compat file for layer33_mean
+            compat = load_json_safe(results_dir / "calibration" / "split40_calibration.json")
+            if compat and cfg == "layer33_mean":
+                cal = {
+                    "uncalibrated": {"accuracy": compat.get("uncalibrated_accuracy", 0),
+                                     "log_loss": compat.get("uncalibrated_log_loss", 0),
+                                     "ece":      compat.get("uncalibrated_ece", 0)},
+                    "calibrated":   {"accuracy": compat.get("calibrated_accuracy", 0),
+                                     "log_loss": compat.get("calibrated_log_loss", 0),
+                                     "ece":      compat.get("calibrated_ece", 0)},
+                }
+        if cal:
+            calibration_by_config[cfg] = cal
+
+    if calibration_by_config:
+        numbers["calibration"] = {}
+        for cfg, cal in calibration_by_config.items():
+            numbers["calibration"][cfg] = {
+                "uncalibrated_accuracy": cal["uncalibrated"]["accuracy"],
+                "uncalibrated_log_loss": cal["uncalibrated"]["log_loss"],
+                "uncalibrated_ece":      cal["uncalibrated"]["ece"],
+                "calibrated_accuracy":   cal["calibrated"]["accuracy"],
+                "calibrated_log_loss":   cal["calibrated"]["log_loss"],
+                "calibrated_ece":        cal["calibrated"]["ece"],
+            }
+
+        # Primary calibrated accuracy = layer33_mean
+        primary = calibration_by_config.get("layer33_mean", {})
+        numbers["calibration"]["primary_calibrated_accuracy"] = \
+            primary.get("calibrated", {}).get("accuracy", None)
+        numbers["calibration"]["primary_calibrated_ece"] = \
+            primary.get("calibrated", {}).get("ece", None)
+
+        # Layer comparison (calibrated accuracy delta)
+        l33_acc  = calibration_by_config.get("layer33_mean",    {}).get("calibrated", {}).get("accuracy", None)
+        l2030_acc = calibration_by_config.get("layers20_30_mean", {}).get("calibrated", {}).get("accuracy", None)
+        if l33_acc is not None and l2030_acc is not None:
+            numbers["layer_comparison"] = {
+                "split40": {
+                    "layer33_calibrated_accuracy":     float(l33_acc),
+                    "layers20_30_calibrated_accuracy": float(l2030_acc),
+                    "delta_pct": float((l33_acc - l2030_acc) / l2030_acc * 100) if l2030_acc else 0
+                }
+            }
+
+        best_acc = numbers["calibration"].get("primary_calibrated_accuracy", "N/A")
+        print(f"  ✓ Calibration (layer33_mean calibrated accuracy): {best_acc}")
     
     # 6. Baselines numbers
     print("\n6. Loading baselines numbers...")

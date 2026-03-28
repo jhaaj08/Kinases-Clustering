@@ -38,14 +38,15 @@ SRC_HMM_PROFILES := data/hmm_profiles
 # ============================================================================
 .PHONY: all clean verify zip help init check-fresh \
         manifests splits embeddings clustering supervised \
-        calibration baselines retrieval tables figures
+        calibration baselines retrieval tables figures figures-output
 
 # Default target
-all: $(RUN_DIR)/MANIFEST.txt
+all: $(RUN_DIR)/MANIFEST.txt figures-output
 	@echo ""
 	@echo "============================================================"
 	@echo "BUILD COMPLETE: $(RUN_DIR)"
 	@echo "============================================================"
+	@echo "  figures_output/  — publication-ready figures"
 	@echo "Run 'make verify' to validate the package"
 	@echo "Run 'make zip' to create Zenodo package"
 
@@ -73,6 +74,7 @@ help:
 	@echo "  make retrieval              Step 14: Retrieval experiment"
 	@echo "  make tables                 Step 15: Generate manuscript tables"
 	@echo "  make figures                Step 16: Generate manuscript figures"
+	@echo "  make figures-output         Copy figures to figures_output/ (reviewer copy)"
 	@echo ""
 	@echo "Current RUN_ID: $(RUN_ID)"
 	@echo "Current RUN_DIR: $(RUN_DIR)"
@@ -106,8 +108,10 @@ init: check-fresh
 	@mkdir -p $(RUN_DIR)/results/baselines
 	@mkdir -p $(RUN_DIR)/results/retrieval
 	@mkdir -p $(RUN_DIR)/results/layer_comparison
+	@mkdir -p $(RUN_DIR)/models
 	@mkdir -p $(RUN_DIR)/tables
 	@mkdir -p $(RUN_DIR)/figures
+	@mkdir -p figures_output
 	@echo '{"run_id": "$(RUN_ID)", "created_at": "$(shell date -Iseconds)"}' > $(RUN_DIR)/run_config.json
 	@rm -f $(CURRENT_LINK)
 	@ln -s $(RUN_ID) $(CURRENT_LINK)
@@ -227,6 +231,16 @@ $(RUN_DIR)/figures/figure_registry.json: $(RUN_DIR)/results/manuscript_numbers.j
 	@echo "[Step 16] ✓ Figures generated"
 
 figures: $(RUN_DIR)/figures/figure_registry.json
+
+# ============================================================================
+# FIGURES OUTPUT (stable project-level copy for reviewers)
+# ============================================================================
+figures-output: $(RUN_DIR)/figures/figure_registry.json
+	@mkdir -p figures_output
+	@cp -f $(RUN_DIR)/figures/Figure*.png figures_output/ 2>/dev/null || true
+	@cp -f $(RUN_DIR)/figures/figure_registry.json figures_output/ 2>/dev/null || true
+	@echo "[figures-output] ✓ Publication figures copied to figures_output/"
+	@ls figures_output/*.png 2>/dev/null | wc -l | xargs -I{} echo "[figures-output]   {} PNG files"
 
 # ============================================================================
 # MANIFEST (SHA256 hashes)

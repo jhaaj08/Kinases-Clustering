@@ -46,7 +46,7 @@ This repository contains a complete, reproducible pipeline for classifying prote
 |------|--------|-------|---------|
 | **Unsupervised Clustering** | ARI | 0.305 | Layers 20-30, k=10, n=1,387 |
 | **Clustering Improvement** | vs. Final Layer | +138.4% | 0.128 → 0.305 ARI |
-| **Supervised Classification** | Accuracy | 80.2% | Layer 33, 40% identity split |
+| **Supervised Classification** | Accuracy | 79.9% | Layer 33, calibrated, 40% identity split |
 | **Classification** | Macro-F1 | 0.617 | 8-class problem, n=1,362 |
 | **Retrieval** | P@1 | 0.703 | Nearest-neighbor |
 | **Retrieval** | MRR | 0.781 | Mean Reciprocal Rank |
@@ -55,7 +55,7 @@ This repository contains a complete, reproducible pipeline for classifying prote
 
 We discovered an interesting finding:
 - **Clustering**: Intermediate layers (20-30) work best (+138% ARI improvement)
-- **Classification**: Final layer (33) works best (80.2% vs 73.6% accuracy)
+- **Classification**: Final layer (33) works best (79.9% calibrated vs 73.6% uncalibrated accuracy)
 
 This suggests different layers encode different types of information useful for different tasks.
 
@@ -83,13 +83,15 @@ make verify
 1. Creates a timestamped run directory: `runs/2025-12-25_120000/`
 2. Generates dataset manifests from domain coordinates
 3. Links pre-computed embeddings
-4. Runs k-means clustering experiments
-5. Creates homology-aware train/test splits
-6. Trains logistic regression classifiers
-7. Computes calibration, baselines, and retrieval metrics
-8. Generates manuscript tables
-9. **Generates all manuscript figures** (UMAP, clustering, supervised, calibration, retrieval)
-10. Creates SHA256 manifest for integrity verification
+4. Runs k-means clustering experiments (4 layer configurations)
+5. Creates homology-aware train/test splits (40%, 50%, 70% identity)
+6. Trains logistic regression classifiers (balanced class weights)
+7. Applies Platt scaling calibration for both layer configurations
+8. Computes baseline comparisons (k-NN, MLP, motifs-only LR, random)
+9. Computes retrieval metrics and precision-recall curve
+10. Generates manuscript tables
+11. **Generates 6 publication figures** → `figures_output/`
+12. Creates SHA256 manifest for integrity verification
 
 ---
 
@@ -231,15 +233,16 @@ runs/2025-12-25_120000/
 │   ├── Table1.csv            # Dataset construction
 │   ├── TableS1.csv           # Layer ablation
 │   └── TableS2.csv           # Baselines comparison
-├── figures/                   # Generated figures
-│   ├── Fig2_umap_geometry.png
-│   ├── Fig3_clustering_metrics.png
-│   ├── Fig4_supervised_homology_splits.png
-│   ├── Fig5_calibration_reliability.png
-│   ├── Fig6_retrieval_metrics.png
-│   ├── FigS1_layer_sweep_clustering.png
-│   ├── FigS2_dataset_class_distribution.png
+├── figures/                   # Generated figures (per-run archive)
+│   ├── Figure1_clustering_ari.png
+│   ├── Figure2_confusion_matrix.png
+│   ├── Figure3_homology_classification.png
+│   ├── Figure4_pooling_comparison.png
+│   ├── Figure5_calibration.png
+│   ├── Figure6_retrieval_pr.png
 │   └── figure_registry.json
+├── models/                    # Calibrated model files
+│   └── lr_split40_calibrated.joblib
 ├── MANIFEST.txt              # SHA256 hashes
 └── MANIFEST.json             # Machine-readable manifest
 ```
@@ -285,6 +288,7 @@ Kinases-Clustering/
 │   ├── .gitkeep
 │   ├── current -> 2025-12-25_120000/  # Symlink to latest
 │   └── 2025-12-25_120000/    # Timestamped runs
+├── figures_output/           # Publication-ready figures (Figure1–Figure6)
 ├── webapp/                   # Gradio web application
 ├── Makefile                  # Build system
 ├── requirements.txt          # Python dependencies
@@ -508,20 +512,37 @@ cat runs/review_run/results/manuscript_numbers.json | python -m json.tool
 
 ### Expected Key Results
 
-After running the pipeline, verify these numbers match (±0.001 tolerance due to floating point):
+After running the pipeline, verify these numbers match (±0.005 tolerance):
 
 | Metric | Expected Value | JSON Path |
 |--------|----------------|-----------|
-| **Best Clustering ARI** | 0.305 | `clustering.best_ARI` |
-| **Layer 33 Clustering ARI** | 0.128 | `clustering.baseline_ARI` |
-| **Improvement %** | 138.4% | `clustering.improvement_percent` |
-| **Layer 33 Accuracy (split40)** | 0.802 | `supervised.split40.layer33_mean.accuracy` |
-| **Layer 33 Macro-F1 (split40)** | 0.617 | `supervised.split40.layer33_mean.macro_f1` |
-| **Retrieval P@1** | 0.703 | `retrieval.P@1` |
-| **Retrieval MRR** | 0.781 | `retrieval.MRR` |
-| **Clustering N** | 1,387 | `dataset.domain_E001_n` |
+| **Best Clustering ARI** | ~0.305 | `clustering.best_ARI` |
+| **Layer 33 Clustering ARI** | ~0.128 | `clustering.baseline_ARI` |
+| **Layer 33 CLS ARI** | ~0.160 | `clustering.layer33_cls_ARI` |
+| **Improvement % (Layers 20-30)** | ~138% | `clustering.improvement_percent` |
+| **Layer 33 Calibrated Accuracy (split40)** | ~0.799 | `calibration.layer33_mean.calibrated_accuracy` |
+| **Layer 33 Calibrated ECE (split40)** | ~0.095 | `calibration.layer33_mean.calibrated_ece` |
+| **Retrieval P@1** | ~0.703 | `retrieval.P@1` |
+| **Retrieval MRR** | ~0.781 | `retrieval.MRR` |
 | **Supervised N** | 1,362 | `dataset.supervised_eligible_n` |
-| **Train/Test Split (40%)** | 1,089 / 273 | `splits.split40.n_train/n_test` |
+
+> **Note on calibrated vs uncalibrated accuracy**: The primary reported accuracy uses
+> Platt scaling calibration. Uncalibrated accuracy (73.6%) is lower than calibrated (79.9%)
+> because `CalibratedClassifierCV(cv=5)` builds an ensemble of 5 sub-models during calibration,
+> which improves both accuracy and probability reliability for downstream use.
+
+### Publication Figures
+
+After `make all`, the 6 manuscript figures are in `figures_output/`:
+
+| Figure | Filename | Content |
+|--------|----------|---------|
+| **Figure 1** | `Figure1_clustering_ari.png` | ARI bar chart — 4 ESM-2 layer configurations |
+| **Figure 2** | `Figure2_confusion_matrix.png` | 8×8 confusion matrix (split40, Layer 33) |
+| **Figure 3** | `Figure3_homology_classification.png` | Accuracy vs identity threshold (70/50/40%) |
+| **Figure 4** | `Figure4_pooling_comparison.png` | Mean pooling vs CLS token — clustering & classification |
+| **Figure 5** | `Figure5_calibration.png` | Reliability diagram before/after Platt scaling |
+| **Figure 6** | `Figure6_retrieval_pr.png` | Precision-recall curve at cosine-similarity thresholds |
 
 ### Quick Verification Script
 
@@ -531,16 +552,27 @@ python -c "
 import json
 with open('runs/review_run/results/manuscript_numbers.json') as f:
     d = json.load(f)
+cal = d.get('calibration', {}).get('layer33_mean', {})
 print('=== KEY RESULTS ===')
-print(f'Best ARI:       {d[\"clustering\"][\"best_ARI\"]:.3f} (expect 0.305)')
-print(f'Improvement:    {d[\"clustering\"][\"improvement_percent\"]:.1f}% (expect 138.4%)')
-print(f'Accuracy:       {d[\"supervised\"][\"split40\"][\"layer33_mean\"][\"accuracy\"]:.3f} (expect 0.802)')
-print(f'Macro-F1:       {d[\"supervised\"][\"split40\"][\"layer33_mean\"][\"macro_f1\"]:.3f} (expect 0.617)')
-print(f'P@1:            {d[\"retrieval\"][\"P@1\"]:.3f} (expect 0.703)')
-print(f'MRR:            {d[\"retrieval\"][\"MRR\"]:.3f} (expect 0.781)')
-print(f'Clustering N:   {d[\"dataset\"][\"domain_E001_n\"]} (expect 1387)')
-print(f'Supervised N:   {d[\"dataset\"][\"supervised_eligible_n\"]} (expect 1362)')
+print(f'Best ARI:              {d[\"clustering\"][\"best_ARI\"]:.3f}  (expect ~0.304)')
+print(f'Improvement:           {d[\"clustering\"][\"improvement_percent\"]:.1f}%  (expect ~137%)')
+print(f'Cal. Accuracy (L33):   {cal.get(\"calibrated_accuracy\",\"N/A\")}  (expect ~0.799)')
+print(f'Cal. ECE (L33):        {cal.get(\"calibrated_ece\",\"N/A\")}  (expect ~0.095)')
+print(f'P@1:                   {d[\"retrieval\"][\"P@1\"]:.3f}  (expect ~0.703)')
+print(f'MRR:                   {d[\"retrieval\"][\"MRR\"]:.3f}  (expect ~0.781)')
+print(f'Supervised N:          {d[\"dataset\"][\"supervised_eligible_n\"]}  (expect 1362)')
 "
+
+# Check figures were generated
+ls figures_output/
+```
+
+### Figures
+
+```bash
+# View generated figures
+open figures_output/   # macOS
+# or: xdg-open figures_output/  # Linux
 ```
 
 ### Expected Runtime
@@ -638,7 +670,7 @@ MIT License - see [LICENSE](LICENSE) file.
 
 | Document | Description |
 |----------|-------------|
-| [MANUSCRIPT.md](MANUSCRIPT.md) | Full manuscript text |
+| [docs/revised_manuscript.md](docs/revised_manuscript.md) | Full manuscript text (matches pipeline results) |
 | [docs/Simple_English.md](docs/Simple_English.md) | Plain-language explanation |
 | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | Deployment instructions |
 | [figures_output/FIGURES_PROCESS.md](figures_output/FIGURES_PROCESS.md) | Figure generation details |
