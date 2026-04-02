@@ -81,12 +81,8 @@ dmypy.json
 Thumbs.db
 Desktop.ini
 
-# Pipeline runs directory (exclude all runs except .gitkeep)
-runs/*
-!runs/.gitkeep
+# Pipeline runs — reviewer creates their own with `make review`
+runs/
 
 # Temporary CD-HIT files
 data/temp_cdhit/
-
-# Archive from cleanup
-_archive_before_cleanup/

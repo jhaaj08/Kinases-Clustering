@@ -1,9 +1,9 @@
 {
   "step": 16,
   "name": "Figure Generation",
-  "timestamp": "2026-03-28T22:46:23.576550",
+  "timestamp": "2026-04-01T15:07:39.105698",
   "output_dirs": [
-    "runs/review_run/figures",
+    "runs/run_current_data/figures",
     "/Users/ajikumar/codefiles/Kinases-Clustering/figures_output"
   ],
   "figures": {

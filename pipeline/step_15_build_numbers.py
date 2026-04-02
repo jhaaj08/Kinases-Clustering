@@ -268,13 +268,68 @@ def main():
             "Macro_F1": round(baseline_data.get("macro_f1", 0), 4),
             "Log_loss": round(baseline_data.get("log_loss", 0), 4) if baseline_data.get("log_loss") else "N/A"
         })
-    
+
     if tables2_data:
         tables2_df = pd.DataFrame(tables2_data)
         tables2_file = tables_dir / "TableS2.csv"
         tables2_df.to_csv(tables2_file, index=False)
         print(f"  ✓ Saved: {tables2_file}")
-    
+
+    # Generate Table 1 (Supervised): Classification performance across strategies + baselines
+    print("\n10b. Generating Table 1 (Supervised Classification Performance)...")
+    t1s_data = []
+    sup40 = numbers.get("supervised", {}).get("split40", {})
+    cal = numbers.get("calibration", {})
+
+    # ESM-2 LR rows (calibrated first, then uncalibrated)
+    for cfg, label in [
+        ("layer33_mean",    "ESM-2 LR Layer 33 (calibrated)"),
+        ("layers20_30_mean","ESM-2 LR Layers 20–30 (calibrated)"),
+    ]:
+        if cfg in cal:
+            t1s_data.append({
+                "Method": label,
+                "Accuracy": round(cal[cfg]["calibrated_accuracy"], 4),
+                "Macro_F1": round(sup40.get(cfg, {}).get("macro_f1", float("nan")), 4),
+                "Log_loss": round(cal[cfg]["calibrated_log_loss"], 4),
+                "Type": "ESM-2 LR",
+            })
+
+    for cfg, label in [
+        ("layer33_mean",    "ESM-2 LR Layer 33 (uncalibrated)"),
+        ("layers20_30_mean","ESM-2 LR Layers 20–30 (uncalibrated)"),
+    ]:
+        if cfg in sup40:
+            t1s_data.append({
+                "Method": label,
+                "Accuracy": round(sup40[cfg]["accuracy"], 4),
+                "Macro_F1": round(sup40[cfg]["macro_f1"], 4),
+                "Log_loss": round(sup40[cfg]["log_loss"], 4),
+                "Type": "ESM-2 LR",
+            })
+
+    # Baseline rows (ordered: MLP, k-NN, Motifs, Random)
+    baseline_order = ["mlp", "knn", "motifs", "random"]
+    baselines = numbers.get("baselines", {})
+    ordered = baseline_order + [k for k in baselines if k not in baseline_order]
+    for bname in ordered:
+        if bname not in baselines:
+            continue
+        bd = baselines[bname]
+        t1s_data.append({
+            "Method": bd.get("name", bname),
+            "Accuracy": round(bd.get("accuracy", 0), 4),
+            "Macro_F1": round(bd.get("macro_f1", 0), 4),
+            "Log_loss": round(bd["log_loss"], 4) if bd.get("log_loss") is not None else "N/A",
+            "Type": "Baseline",
+        })
+
+    if t1s_data:
+        t1s_df = pd.DataFrame(t1s_data)
+        t1s_file = tables_dir / "Table1_supervised.csv"
+        t1s_df.to_csv(t1s_file, index=False)
+        print(f"  ✓ Saved: {t1s_file} ({len(t1s_data)} rows)")
+
     # Cross-validate
     print("\n11. Cross-validating...")
     errors = []
@@ -304,6 +359,7 @@ def main():
     print(f"\nGenerated files:")
     print(f"  - {numbers_file}")
     print(f"  - {tables_dir}/Table1.csv")
+    print(f"  - {tables_dir}/Table1_supervised.csv")
     print(f"  - {tables_dir}/TableS1.csv")
     print(f"  - {tables_dir}/TableS2.csv")
     

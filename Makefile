@@ -38,15 +38,17 @@ SRC_HMM_PROFILES := data/hmm_profiles
 # ============================================================================
 .PHONY: all clean verify zip help init check-fresh \
         manifests splits embeddings clustering supervised \
-        calibration baselines retrieval tables figures figures-output
+        calibration baselines retrieval tables figures figures-output \
+        report review
 
 # Default target
-all: $(RUN_DIR)/MANIFEST.txt figures-output
+all: $(RUN_DIR)/MANIFEST.txt $(RUN_DIR)/REPORT.html figures-output
 	@echo ""
 	@echo "============================================================"
 	@echo "BUILD COMPLETE: $(RUN_DIR)"
 	@echo "============================================================"
-	@echo "  figures_output/  — publication-ready figures"
+	@echo "  $(RUN_DIR)/REPORT.html  — reviewer summary (open in browser)"
+	@echo "  figures_output/         — publication-ready figures"
 	@echo "Run 'make verify' to validate the package"
 	@echo "Run 'make zip' to create Zenodo package"
 
@@ -58,6 +60,7 @@ help:
 	@echo "  make all                    Fresh run (auto-generated ID)"
 	@echo "  make all RUN_ID=name        Named run"
 	@echo "  make all FORCE=1            Force overwrite"
+	@echo "  make review                 Single-click reviewer run (RUN_ID=run_current_data)"
 	@echo "  make verify                 Verify current run"
 	@echo "  make zip                    Create Zenodo ZIP"
 	@echo "  make clean                  Remove current run"
@@ -75,6 +78,7 @@ help:
 	@echo "  make tables                 Step 15: Generate manuscript tables"
 	@echo "  make figures                Step 16: Generate manuscript figures"
 	@echo "  make figures-output         Copy figures to figures_output/ (reviewer copy)"
+	@echo "  make report                 Step 17: Generate REPORT.html (self-contained)"
 	@echo ""
 	@echo "Current RUN_ID: $(RUN_ID)"
 	@echo "Current RUN_DIR: $(RUN_DIR)"
@@ -243,6 +247,29 @@ figures-output: $(RUN_DIR)/figures/figure_registry.json
 	@ls figures_output/*.png 2>/dev/null | wc -l | xargs -I{} echo "[figures-output]   {} PNG files"
 
 # ============================================================================
+# STEP 17: REVIEWER HTML REPORT
+# ============================================================================
+$(RUN_DIR)/REPORT.html: $(RUN_DIR)/figures/figure_registry.json $(RUN_DIR)/results/manuscript_numbers.json
+	@echo ""
+	@echo "[Step 17] Generating reviewer HTML report..."
+	$(PYTHON) pipeline/step_17_report.py --run-dir $(RUN_DIR)
+	@echo "[Step 17] ✓ REPORT.html generated"
+
+report: $(RUN_DIR)/REPORT.html
+
+# ============================================================================
+# REVIEWER SHORTCUT (single-command reproduction)
+# ============================================================================
+review:
+	$(MAKE) all RUN_ID=run_current_data FORCE=1
+	@echo ""
+	@echo "============================================================"
+	@echo "REVIEWER RUN COMPLETE"
+	@echo "============================================================"
+	@echo "  Open:   runs/run_current_data/REPORT.html"
+	@echo "  Verify: make verify RUN_ID=run_current_data"
+
+# ============================================================================
 # MANIFEST (SHA256 hashes)
 # ============================================================================
 $(RUN_DIR)/MANIFEST.txt: $(RUN_DIR)/figures/figure_registry.json
@@ -316,6 +343,6 @@ clean-all:
 	@echo "WARNING: This will delete ALL runs!"
 	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] && rm -rf runs/* || echo "Aborted."
 
-# Create .gitkeep
-$(shell mkdir -p runs && touch runs/.gitkeep)
+# Ensure runs/ directory exists (gitignored, created on demand)
+$(shell mkdir -p runs)
 
